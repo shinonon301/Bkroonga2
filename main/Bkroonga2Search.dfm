@@ -317,6 +317,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       OnData = LVMailData
       OnDblClick = LVMailDblClick
       OnKeyPress = LVMailKeyPress
+      OnSelectItem = LVMailSelectItem
     end
     object WBMail: TWebBrowser
       Left = 1

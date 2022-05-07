@@ -228,6 +228,22 @@ Groonga を使ったメール高速全文検索ができるようにするプラ
   例）select table=MailIds limit=0  
       ⇒ "body"→"n_hits" からインデクシングされたメール数が
         得られます
+* bkroonga2.dll と同じフォルダに snippethtml.txt というファイルを
+  置くことで、スニペットの HTML ヘッダを変更することが可能です。
+  デフォルトは以下の通りです。
+  最後に自動的に ``` </body></html> ``` が追加されます。
+  文字コードはUTF-8にしてください。
+  ```
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style type="text/css">body{font-size:12px;margin:0px;padding:0px;}
+    span.k1{background-color:rgb(255,255,128);color:black;font-weight:bold;}
+    span.k2{background-color:rgb(131,139,253);color:white;font-weight:bold;}
+    span.k3{background-color:rgb(220,146,235);color:black;font-weight:bold;}
+    span.k4{background-color:rgb(90,133,90);color:white;font-weight:bold;}
+    span.k5{background-color:rgb(136,110,136);color:white;font-weight:bold;}
+    span.dot{color:gray;}</style></head><body>
+  ```
 
 
 ----------------------------------------------------------------------
@@ -247,6 +263,10 @@ Groonga を使ったメール高速全文検索ができるようにするプラ
 ## 履歴
 
 * Ver.2.0.0(2022/05/05)：初版
+* Ver.2.0.1(2022/05/07)
+    - リストビューで選択したメールに対するツリービューと月絞り込みを
+      ハイライトするようにした
+    - 検索数0件の月を表示したときの月絞り込みの件数が誤っていた
 
 
 ----------------------------------------------------------------------

@@ -125,6 +125,8 @@ type
 		procedure LVMailKeyPress(Sender: TObject; var Key: Char);
 		procedure LVMailChange(Sender: TObject; Item: TListItem; Change: TItemChange);
 		procedure LVMailColumnClick(Sender: TObject; Column: TListColumn);
+		procedure LVMailSelectItem(Sender: TObject; Item: TListItem;
+			Selected: Boolean);
 		procedure PanelFromClick(Sender: TObject);
 		procedure PanelFromMouseDown(Sender: TObject; Button: TMouseButton;
 			Shift: TShiftState; X, Y: Integer);
@@ -219,6 +221,8 @@ type
 		function ChangeShowTree(sh: Boolean): Boolean;
 		function ChangeZeroMonth(flg: Boolean): Boolean;
 		function ChangeOnlyFolder(flg: Boolean): Boolean;
+		function GetMonthFirst(dt: TDateTime): TDateTime;
+		function GetMonthNext(dt: TDateTime): TDateTime;
 	public
 		{ Public 宣言 }
 		grnreqthread: TGrnRequestThread;
@@ -444,6 +448,7 @@ end;
 procedure TBkroonga2SearchForm.DGMonthDrawCell(Sender: TObject; ACol,
   ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
+    qi: TGrnQueryResult;
 	r: TRect;
 	h, w, v: Integer;
 	s0, s1, s2: String;
@@ -463,6 +468,11 @@ begin
 		end else begin
 			cnv.Brush.Color := clWindow;
 		end;
+		if Assigned(LVMail.Selected) then begin
+			qi := GetLVQItem(LVMail.Selected.Index);
+			if (qi.date >= GetMonthFirst(dt)) and (qi.date < GetMonthNext(dt)) then
+				cnv.Brush.Color := clYellow;
+		end;
 		cnv.Brush.Style := bsSolid;
 		cnv.FillRect(Rect);
 		v := StrToIntDef(s2, 0);
@@ -473,8 +483,8 @@ begin
 			end else begin
 				cnv.Brush.Color := $00ffa0a0;
 			end;
-			r.Left := Rect.Left;
-			r.Right := Rect.Right;
+			r.Left := Rect.Left + 4;
+			r.Right := Rect.Right - 4;
 			r.Top := Rect.Bottom - ((Rect.Bottom - Rect.Top) * v div 100);
 			r.Bottom := Rect.Bottom;
 			cnv.FillRect(r);
@@ -547,15 +557,23 @@ procedure TBkroonga2SearchForm.TVFolderCustomDrawItem(
   Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState;
   var DefaultDraw: Boolean);
 var
+	qi: TGrnQueryResult;
 	cnv: TCanvas;
 	r, r0: TRect;
 	m: TMatch;
-	v: Integer;
-    bmp: TBitmap;
+	v, i, imgidx: Integer;
+	bmp: TBitmap;
 begin
 	try
 		DefaultDraw := False;
 		cnv := Sender.Canvas;
+		if Assigned(LVMail.Selected) then begin
+			qi := GetLVQItem(LVMail.Selected.Index);
+			i := Integer(Node.Data);
+			if (i >= 0) and (i < Length(TVFolName)) and (qi.level >= 0) then
+				if LowerCase(TVFolName[i]) = LowerCase(qi.dir) then
+					cnv.Brush.Color := clYellow;
+		end;
 		m := TRegEx.Match(Node.Text, ' \- (\d+)');
 		if m.Success then
 			v := StrToIntDef(m.Groups.Item[1].Value, 0)
@@ -583,11 +601,16 @@ begin
 		cnv.Brush.Style := bsClear;
 		r := Node.DisplayRect(True);
 		r.Left := r.Left - 16 - (4*Node.Level);
+        cnv.Font.Color := clWindowText;
 		cnv.TextRect(r, r.Left, r.Top, Node.Text);
 		r0 := r;
 		r0.Left := r0.Left - ILMail.Width;
 		r0.Right := r0.Left + ILMail.Width;
-		ILMail.Draw(cnv, r0.Left, r0.Top, Node.ImageIndex);
+		if cdsSelected in State then
+			imgidx := Node.SelectedIndex
+		else
+			imgidx := Node.ImageIndex;
+		ILMail.Draw(cnv, r0.Left, r0.Top, imgidx);
 		r0.Left := r0.Left - (ILMail.Width div 2);
 		r0.Right := r0.Left + (ILMail.Width div 2);
 		if Node.HasChildren then begin
@@ -908,8 +931,6 @@ var
 	sni: TArray<String>;
 	gsel: TGridRect;
 	tn: TTreeNode;
-	dst, ded: Double;
-	dtmp: TDateTime;
 	i: Integer;
 begin
 	try
@@ -938,13 +959,9 @@ begin
 		if CBIgnoreTrash.Checked then fil := fil + ' &! attr@"trash"';
 		gsel := DGMonth.Selection;
 		if (gsel.Left >= 0) and (gsel.Right >= 0) and (gsel.Left < Length(MonthList)) and (gsel.Right < Length(MonthList)) then begin
-			dtmp := bka.time_tToDateTime(StrToFloatDef(MonthList[gsel.Right].key, 0));
-			dst := bka.DateTimeTotime_t(EncodeDate(StrToInt(FormatDateTime('yyyy', dtmp)), StrToInt(FormatDateTime('mm', dtmp)), 1));
-			dtmp := bka.time_tToDateTime(StrToFloatDef(MonthList[gsel.Left].key, 0));
-			dtmp := EncodeDate(StrToInt(FormatDateTime('yyyy', dtmp + 32)),
-				StrToInt(FormatDateTime('mm', dtmp + 32)), 1);
-			ded := bka.DateTimeTotime_t(dtmp);
-			fil := fil + ' && msgid.date>='+FloatToStr(dst)+' && msgid.date<'+FloatToStr(ded);
+			fil := fil +
+				' && msgid.date>='+FloatToStr(bka.DateTimeTotime_t(GetMonthFirst(bka.time_tToDateTime(StrToFloatDef(MonthList[gsel.Right].key, 0)))))+
+				' && msgid.date<'+FloatToStr(bka.DateTimeTotime_t(GetMonthNext(bka.time_tToDateTime(StrToFloatDef(MonthList[gsel.Left].key, 0)))));
 		end;
 		if CBMailbox.Checked then
 			fil := fil + ' && dir@^"'+ExcludeTrailingPathDelimiter(bka.GetCurrentMailBox)+'"';
@@ -978,13 +995,13 @@ begin
 					'drilldowns[ddt].keys dt',
 					'drilldowns[ddt].sort_keys -_key',
 					'drilldowns[ddt].output_columns _key,_nsubrecs',
-					'drilldowns[ddt].limit 999'];
+					'drilldowns[ddt].limit 9999'];
 			if (tn = nil) then
 				Result := Result + [
 					'drilldowns[ddir].keys dir',
 					'drilldowns[ddir].sort_keys _key',
 					'drilldowns[ddir].output_columns _key,_nsubrecs',
-					'drilldowns[ddir].limit 999'];
+					'drilldowns[ddir].limit 9999'];
 			if not((PanelFrom.Tag >= 0) and (PanelFrom.Tag < Length(FromList))) then
 				Result := Result + [
 					'drilldowns[dfrom].keys msgid.from',
@@ -1447,7 +1464,7 @@ var
 	i, cnt, val, lev: Integer;
 	dt: TDateTime;
 	r: TGridRect;
-	s, ss: String;
+	s, ss, fol: String;
 	m: TMatch;
 	tn, ctn: TTreeNode;
 	folary: TArray<String>;
@@ -1480,7 +1497,7 @@ begin
 				MonthList := MonthList + [ddres];
 				prevddt := dt;
 			end;
-			DGMonth.ColCount := cnt;
+			DGMonth.ColCount := Length(MonthList);
 			DGMonthUnselect;
 		end;
 		cnt := GetDrilldownDirCount(json);
@@ -1491,8 +1508,9 @@ begin
 			try
 				SetLength(TVFolName, 0);
 				for i := 0 to cnt-1 do begin
-					folary := TRegEx.Split(ParseDrilldownDirRecord(json, i).key, '\/');
-					s := bka.GetFolderDisplayName(bka.Slash2Yen(ParseDrilldownDirRecord(json, i).key+'/'));
+					fol := ParseDrilldownDirRecord(json, i).key;
+					folary := TRegEx.Split(fol, '\/');
+					s := bka.GetFolderDisplayName(bka.Slash2Yen(fol+'/'));
 					val := ParseDrilldownDirRecord(json, i).value;
 					logger.debug(self.ClassName, Format('ReceiveFirstQuery Drilldown Dir [%s %d]', [String.Join('/', folary), val]));
 					m := TRegEx.Match(s, '\[(.+?)\]\s+(.+)$');
@@ -1537,8 +1555,22 @@ begin
 										TVFolderChangeCount(tn, 0, val)
 									else
 										TVFolderChangeCount(tn, val, 0);
-									tn.ImageIndex := 31;
-									tn.SelectedIndex := 30;
+									if Pos('!inbox', LowerCase(fol)) > 0 then begin
+										tn.ImageIndex := 19;
+										tn.SelectedIndex := 18;
+									end else if Pos('!sent', LowerCase(fol)) > 0 then begin
+										tn.ImageIndex := 25;
+										tn.SelectedIndex := 24;
+									end else if Pos('!draft', LowerCase(fol)) > 0 then begin
+										tn.ImageIndex := 23;
+										tn.SelectedIndex := 22;
+									end else if Pos('!trash', LowerCase(fol)) > 0 then begin
+										tn.ImageIndex := 29;
+										tn.SelectedIndex := 28;
+									end else begin
+										tn.ImageIndex := 31;
+										tn.SelectedIndex := 30;
+									end;
 									Break;
 								end else if Pos(ss + ' ', ctn.Text) = 1 then begin
 									tn := ctn;
@@ -1614,7 +1646,7 @@ begin
 		end;
 		LVItemSort(False);
 		LabelHit.Caption := Format('HIT: %d (%d)', [qhits, Length(QItem)]);
-		LVMail.Repaint;
+		LVMail.Refresh;
 		if (Length(QItem) < qhits) and (Length(QItem) < 1000) and (self.Showing) then begin
 			QuerySend(stage+1, MakeQueryParam(stage+1));
 			LabelHit.Caption := LabelHit.Caption + '...';
@@ -1804,6 +1836,30 @@ begin
 	end;
 end;
 
+function TBkroonga2SearchForm.GetMonthFirst(dt: TDateTime): TDateTime;
+begin
+	try
+		Result := EncodeDate(StrToInt(FormatDateTime('yyyy', dt)),
+			StrToInt(FormatDateTime('m', dt)), 1);
+	except on E: Exception do begin
+			logger.error(self.ClassName, Format('GetMonthFirst %s %s %f', [E.Message, e.StackTrace, dt]));
+			Result := 0.0;
+		end;
+	end;
+end;
+
+function TBkroonga2SearchForm.GetMonthNext(dt: TDateTime): TDateTime;
+begin
+	try
+		Result := EncodeDate(StrToInt(FormatDateTime('yyyy', GetMonthFirst(dt) + 32)),
+			StrToInt(FormatDateTime('m', GetMonthFirst(dt) + 32)), 1);
+	except on E: Exception do begin
+			logger.error(self.ClassName, Format('GetMonthNext %s %s %f', [E.Message, e.StackTrace, dt]));
+			Result := 0.0;
+	    end;
+	end;
+end;
+
 procedure TBkroonga2SearchForm.LVMailData(Sender: TObject;
   Item: TListItem);
 var
@@ -1878,6 +1934,44 @@ begin
 	if Key = #13 then begin
 		LVMailDblClick(Sender);
 		Key := #0;
+	end;
+end;
+
+procedure TBkroonga2SearchForm.LVMailSelectItem(Sender: TObject;
+  Item: TListItem; Selected: Boolean);
+var
+    qi: TGrnQueryResult;
+	i, idx: Integer;
+	s: String;
+	dt: TDateTime;
+begin
+	try
+		if Selected and Assigned(LVMail.Selected) then begin
+			qi := GetLVQItem(LVMail.Selected.Index);
+			s := LowerCase(qi.dir);
+			for i := 0 to TVFolder.Items.Count-1 do begin
+				idx := Integer(TVFolder.Items[i].Data);
+				if (idx >= 0) and (i < Length(TVFolName)) then
+					if LowerCase(TVFolName[idx]) = s then begin
+						TVFolder.Items[i].MakeVisible;
+						Break;
+                    end;
+			end;
+			{
+			// 単にスクロールさせたいだけだけど、以下のやり方だと選択されちゃう
+			for i := 0 to Length(MonthList)-1 do begin
+				dt := bka.time_tToDateTime(StrToFloatDef(MonthList[i].key, 0));
+				if (qi.date >= GetMonthFirst(dt)) and (qi.date < GetMonthNext(dt)) then begin
+					DGMonth.Col := i;
+					Break;
+				end;
+			end;
+			}
+		end;
+		TVFolder.Refresh;
+		DGMonth.Refresh;
+	except on E: Exception do
+		logger.error(self.ClassName, Format('LVMailSelectItem %s %s', [E.Message, e.StackTrace]));
 	end;
 end;
 
