@@ -136,7 +136,6 @@ type
 		procedure DGMonthClick(Sender: TObject);
 		procedure DGMonthMouseDown(Sender: TObject; Button: TMouseButton;
 			Shift: TShiftState; X, Y: Integer);
-		procedure TVFolderClick(Sender: TObject);
 		procedure TVFolderMouseDown(Sender: TObject; Button: TMouseButton;
 			Shift: TShiftState; X, Y: Integer);
 		procedure TVFolderCustomDrawItem(Sender: TCustomTreeView;
@@ -151,6 +150,7 @@ type
 			MousePos: TPoint; var Handled: Boolean);
 		procedure DGMonthMouseWheelUp(Sender: TObject; Shift: TShiftState;
 			MousePos: TPoint; var Handled: Boolean);
+    procedure TVFolderChange(Sender: TObject; Node: TTreeNode);
 	private
 		{ Private 宣言 }
 		FirstShow: Boolean;
@@ -547,9 +547,10 @@ begin
 	Handled := True;
 end;
 
-procedure TBkroonga2SearchForm.TVFolderClick(Sender: TObject);
+procedure TBkroonga2SearchForm.TVFolderChange(Sender: TObject;
+  Node: TTreeNode);
 begin
-	logger.debug(self.ClassName, 'TVFolderClick');
+	logger.debug(self.ClassName, 'TVFolderChange');
 	StartQuery;
 end;
 
@@ -777,12 +778,16 @@ var
 	ini: TIniFile;
 begin
 	logger.debug(self.ClassName, 'IniLoad');
-	ini := TIniFile.Create(ChangeFileExt(MyDllFileName, '.ini'));
+	ini := TIniFile.Create(IniFileName);
 	with ini do begin
 		Left := ReadInteger(AppIni, 'WindowX', Left);
+		if (Left < 0) or (Left > 9999) then Left := 0;
 		Top := ReadInteger(AppIni, 'WindowY', Top);
+		if (Top < 0) or (Top > 9999) then Top := 0;
 		Width := ReadInteger(AppIni, 'Width', Width);
+		if Width < self.Constraints.MinWidth then Width := self.Constraints.MinWidth;
 		Height := ReadInteger(AppIni, 'Height', Height);
+		if Height < self.Constraints.MinHeight then Height := self.Constraints.MinHeight;
 		WBMail.Height := ReadInteger(AppIni, 'WBHeight', WBMail.Height);
 		TreeWidth := ReadInteger(AppIni, 'TVWidth', PanelTree.Width);
 		LVMail.Column[0].Width := ReadInteger(AppIni, 'LV0Width', LVMail.Column[0].Width);
@@ -811,8 +816,8 @@ begin
 		Free;
 	end;
 	WBMail.Align := alBottom;
-	if FileExists(ExtractFilePath(MyDllFilename)+'bkroonga2.hst') then
-		CBQuery.Items.LoadFromFile(ExtractFilePath(MyDllFilename)+'bkroonga2.hst');
+	if FileExists(ExtractFilePath(IniFileName)+'bkroonga2.hst') then
+		CBQuery.Items.LoadFromFile(ExtractFilePath(IniFileName)+'bkroonga2.hst');
 	ChangeShowMonth(ShowMonth);
 	ChangeShowTree(ShowTree);
 	ChangeZeroMonth(ZeroMonth);
@@ -824,7 +829,7 @@ var
 	ini: TIniFile;
 begin
 	logger.debug(self.ClassName, 'IniSave');
-	ini := TIniFile.Create(ChangeFileExt(MyDllFileName, '.ini'));
+	ini := TIniFile.Create(IniFileName);
 	with ini do begin
 		WriteInteger(AppIni, 'WindowX', Left);
 		WriteInteger(AppIni, 'WindowY', Top);
@@ -857,7 +862,7 @@ begin
 		WriteInteger(AppIni, 'SortDir', Integer(LVSortDir));
 		Free;
 	end;
-	CBQuery.Items.SaveToFile(ExtractFilePath(MyDllFilename)+'bkroonga2.hst');
+	CBQuery.Items.SaveToFile(ExtractFilePath(IniFileName)+'bkroonga2.hst');
 end;
 
 function TBkroonga2SearchForm.MakeQstr(var sni: TArray<String>): String;
@@ -1675,12 +1680,16 @@ end;
 
 procedure TBkroonga2SearchForm.AddQItem(qi: TGrnQueryResult);
 var
-	i, j: Integer;
+	i, j, lv: Integer;
+	added: Boolean;
 begin
 	try
 		if LVSortType = SortThread then begin
-			for i := 0 to Length(LVItem)-1 do begin
+			added := False;
+			i := 0;
+			while i < Length(LVItem) do begin
 				if QItem[LVItem[i]].msgid_id = qi.inreplyto then begin
+					// 親が見つかったときはその親にぶら下げる
 					if QItem[LVItem[i]].haschild then begin
 						j := i + 1;
 						while j < Length(LVItem) do begin
@@ -1699,22 +1708,38 @@ begin
 						Exit;
 					end;
 				end else if qi.msgid_id = QItem[LVItem[i]].inreplyto then begin
-					qi.haschild := True;
-					qi.level := QItem[LVItem[i]].level;
+					// 子が見つかったときはその子の親になる
+					// 子は複数いる場合がある
+					// でも、なんかまだ足りない気がする？？
+					if not added then begin
+						qi.haschild := True;
+						qi.level := QItem[LVItem[i]].level;
+						lv := qi.level;
+					end else begin
+						lv := QItem[LVItem[i]].level;
+					end;
 					QItem[LVItem[i]].level := QItem[LVItem[i]].level + 1;
 					QItem[LVItem[i]].haschild := False;
 					j := i + 1;
 					while j < Length(LVItem) do begin
-						if QItem[LVItem[j]].level <= qi.level then Break;
+						if QItem[LVItem[j]].level <= lv then Break;
 						QItem[LVItem[j]].level := QItem[LVItem[j]].level + 1;
 						QItem[LVItem[j]].haschild := False;
 						Inc(j);
 					end;
-					QItem := QItem + [qi];
-					LVItem := Copy(LVItem, 0, i) + [Length(QItem)-1] + Copy(LVItem, i, Length(LVItem));
-					Exit;
+					if not added then begin
+						QItem := QItem + [qi];
+						LVItem := Copy(LVItem, 0, i) + [Length(QItem)-1] + Copy(LVItem, i, Length(LVItem));
+						added := True;
+						i := j + 1;
+					end else begin
+						i := j;
+					end;
+				end else begin
+					Inc(i);
 				end;
 			end;
+			if added then Exit;
 		end;
 		QItem := QItem + [qi];
 		LVItem := LVItem + [Length(QItem)-1];
@@ -1762,11 +1787,10 @@ begin
 					function(const Left, Right: Integer): Integer
 					begin
 						Result := CompareStr(QItem[Left].subject, QItem[Right].subject);
-						if Result = 0 then begin
+						if LVSortDir = SortReverse then
+							Result := -Result;
+						if Result = 0 then
 							Result := Left - Right;
-							if LVSortDir = SortReverse then
-								Result := -Result;
-						end;
 					end
 				);
 				TArray.Sort<Integer>(LVItem, comp);
@@ -1775,11 +1799,10 @@ begin
 					function(const Left, Right: Integer): Integer
 					begin
 						Result := CompareStr(QItem[Left].from, QItem[Right].from);
-						if Result = 0 then begin
+						if LVSortDir = SortReverse then
+							Result := -Result;
+						if Result = 0 then
 							Result := Left - Right;
-							if LVSortDir = SortReverse then
-								Result := -Result;
-						end;
 					end
 				);
 				TArray.Sort<Integer>(LVItem, comp);
@@ -1789,11 +1812,10 @@ begin
 					begin
 						// Dateだけはデフォルト新しい順
 						Result := Round((QItem[Right].date - QItem[Left].date) * (60*60*24));
-						if Result = 0 then begin
+						if LVSortDir = SortReverse then
+							Result := -Result;
+						if Result = 0 then
 							Result := Left - Right;
-							if LVSortDir = SortReverse then
-								Result := -Result;
-						end;
 					end
 				);
 				TArray.Sort<Integer>(LVItem, comp);
@@ -1802,11 +1824,10 @@ begin
 					function(const Left, Right: Integer): Integer
 					begin
 						Result := CompareStr(QItem[Left].dir, QItem[Right].dir);
-						if Result = 0 then begin
+						if LVSortDir = SortReverse then
+							Result := -Result;
+						if Result = 0 then
 							Result := Left - Right;
-							if LVSortDir = SortReverse then
-								Result := -Result;
-						end;
 					end
 				);
 				TArray.Sort<Integer>(LVItem, comp);
@@ -1944,6 +1965,7 @@ var
 	i, idx: Integer;
 	s: String;
 	dt: TDateTime;
+    tn: TTreeNode;
 begin
 	try
 		if Selected and Assigned(LVMail.Selected) then begin
@@ -1953,7 +1975,17 @@ begin
 				idx := Integer(TVFolder.Items[i].Data);
 				if (idx >= 0) and (i < Length(TVFolName)) then
 					if LowerCase(TVFolName[idx]) = s then begin
-						TVFolder.Items[i].MakeVisible;
+						//TVFolder.Items[i].MakeVisible;    // MakeVisibleだと横スクロールも伴ってうざい
+						tn := TVFolder.Items[i];
+						while tn.Parent <> nil do begin
+							tn := tn.Parent;
+							tn.Expand(False);
+						end;
+						for idx := 0 to TVFolder.Items.Count-1 do begin
+							if TVFolder.Items[i].IsVisible then Break;
+							if TVFolder.Items[idx].IsVisible then
+								TVFolder.TopItem := TVFolder.Items[idx];
+						end;
 						Break;
                     end;
 			end;
@@ -2200,7 +2232,7 @@ var
 	sl: TStringList;
 begin
 	try
-		fn := ExtractFilePath(MyDllFileName) + 'snippethtml.txt';
+		fn := ExtractFilePath(IniFileName) + 'snippethtml.txt';
 		try
 			if FileExists(fn) then begin
 				sl := TStringList.Create;

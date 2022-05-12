@@ -173,7 +173,7 @@ begin
 			try
 				if fResult.GetValue<TJSONObject>('header').FindValue('error') <> nil then begin
 					logger.error(self.ClassName, Format('command %s %s', [cmd, fResult.ToString]));
-					errfn := ExtractFilePath(MyDllFileName);
+					errfn := ExtractFilePath(IniFileName);
 					if cmd = 'select' then
 						errfn := errfn + 'errorselect.txt'
 					else if cmd = 'load' then

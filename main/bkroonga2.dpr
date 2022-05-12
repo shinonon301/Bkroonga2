@@ -461,8 +461,14 @@ begin
 	// DLLファイルのバージョン情報からそれぞれの文字列を得る
 	GetModuleFileNameA(hInstance, szFileName, MAX_PATH);
 	MyDllFileName := Trim(String(szFileName));
-	IniFilename := ChangeFileExt(MyDllFileName, '.ini');
-	LogFn := ChangeFileExt(MyDllFilename, '.log');
+	if DirectoryExists(bka.DataFolder+'PlugIns') then begin
+		IniFileName := bka.DataFolder + 'PlugIns\' + ExtractFileName(ChangeFileExt(MyDllFileName, '.ini'));
+	end else begin
+		IniFileName := bka.DataFolder + ExtractFileName(ChangeFileExt(MyDllFileName, '.ini'));
+	end;
+	if (not FileExists(IniFileName)) and FileExists(ChangeFileExt(MyDllFileName, '.ini')) then
+		CopyFile(PChar(IniFileName), PChar(ChangeFileExt(MyDllFileName, '.ini')), True);
+	LogFn := ChangeFileExt(IniFilename, '.log');
 	llev := Ord(LOG_DEBUG);
 	lsize := 1000000;
     lhist := 7;
@@ -473,16 +479,16 @@ begin
 			LogFn := Trim(tmpStr);
 			try
 				if not FileExists(LogFn) then begin
-					if Trim(ExtractFilePath(LogFn)) = '' then LogFn := ExtractFilePath(MyDllFileName) + LogFn;
+					if Trim(ExtractFilePath(LogFn)) = '' then LogFn := ExtractFilePath(IniFileName) + LogFn;
 					if not DirectoryExists(ExtractFilePath(LogFn)) then ForceDirectories(ExtractFilePath(LogFn));
 					if not FileExists(LogFn) then begin
 						AssignFile(f, LogFn);
 						Rewrite(f);
 						CloseFile(f);
 					end;
-                end;
+				end;
 			except on E: Exception do
-				LogFn := ChangeFileExt(MyDllFilename, '.log');
+				LogFn := ChangeFileExt(IniFileName, '.log');
 			end;
 		end;
 		SetLength(tmpStr, 256);
