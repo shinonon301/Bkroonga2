@@ -159,7 +159,7 @@ begin
 	with ini do begin
 		gconf.grnexe := ReadString(AppName, 'GroongaExe', '');
 		gconf.grndbdir := ReadString(AppName, 'DBDir',
-			IncludeTrailingPathDelimiter(ExtractFilePath(MyDllFilename))+'bkroonga2db');
+			IncludeTrailingPathDelimiter(ExtractFilePath(IniFileName))+'bkroonga2db');
         gconf.grnport := ReadInteger(AppName, 'GroongaPort', 10083);
 		gconf.bTrash := ReadBool(AppName, 'bTrash', True);
 		gconf.bOutbox := ReadBool(AppName, 'bOutbox', False);
@@ -409,17 +409,17 @@ begin
 		MessageBox(0, 'lz4.exeが見つかりません', 'エラー', MB_ICONERROR or MB_OK);
 		Exit;
 	end;
-	if not DirectoryExists(ExtractFilePath(MyDllFileName)+'bkroonga2bak') then begin
+	if not DirectoryExists(ExtractFilePath(IniFileName)+'bkroonga2bak') then begin
 		ans := MessageBox(0,
 			'DBバックアップ用フォルダを、プラグインフォルダ内に作成します'#10'よろしいですか？',
 			'確認', MB_YESNO or MB_DEFBUTTON2 or MB_ICONEXCLAMATION);
 		if ans <> ID_YES then Exit;
-		ForceDirectories(ExtractFilePath(MyDllFileName)+'bkroonga2bak');
+		ForceDirectories(ExtractFilePath(IniFileName)+'bkroonga2bak');
 	end;
-	if DirectoryExists(ExtractFilePath(MyDllFileName)+'bkroonga2bak') then begin
+	if DirectoryExists(ExtractFilePath(IniFileName)+'bkroonga2bak') then begin
 		MakeDumpBat;
 		MakeRestoreBat;
-		ShellExecute(0, 'open', PChar(ExtractFilePath(MyDllFileName)+'bkroonga2bak'), nil, nil, SW_SHOWNORMAL);
+		ShellExecute(0, 'open', PChar(ExtractFilePath(IniFileName)+'bkroonga2bak'), nil, nil, SW_SHOWNORMAL);
 	end;
 end;
 
@@ -521,12 +521,12 @@ var
 	s: String;
 	f: TextFile;
 begin
-	AssignFile(f, ExtractFilePath(MyDllFileName)+'bkroonga2bak\DBバックアップ作成.bat', CP_UTF8);
+	AssignFile(f, ExtractFilePath(IniFileName)+'bkroonga2bak\DBバックアップ作成.bat', CP_UTF8);
 	Rewrite(f);
 	Writeln(f, 'chcp 65001');
 	s := gconf.grnexe+' "'+IncludeTrailingPathDelimiter(gconf.grndbdir) + DBName + '" dump | '+
 		ExtractFilePath(gconf.grnexe)+'lz4.exe -9 - "'+
-		ExtractFilePath(MyDllFileName)+'bkroonga2bak\dbbak%date:~0,4%%date:~5,2%%date:~8,2%.lz4"';
+		ExtractFilePath(IniFileName)+'bkroonga2bak\dbbak%date:~0,4%%date:~5,2%%date:~8,2%.lz4"';
 	Writeln(f, s);
 	CloseFile(f);
 end;
@@ -536,7 +536,7 @@ var
 	s: String;
 	f: TextFile;
 begin
-	AssignFile(f, ExtractFilePath(MyDllFileName)+'bkroonga2bak\DBバックアップリストア(lz4ファイルをドロップ).bat', CP_UTF8);
+	AssignFile(f, ExtractFilePath(IniFileName)+'bkroonga2bak\DBバックアップリストア(lz4ファイルをドロップ).bat', CP_UTF8);
 	Rewrite(f);
 	Writeln(f, 'chcp 65001');
 	Writeln(f, 'if EXIST "%1" (goto CONT) else goto END');
@@ -547,7 +547,7 @@ begin
 	Writeln(f, s);
 	Writeln(f, ':END');
 	CloseFile(f);
-	AssignFile(f, ExtractFilePath(MyDllFileName)+'bkroonga2bak\！いずれもBeckyを終了して実行すること！.txt', CP_UTF8);
+	AssignFile(f, ExtractFilePath(IniFileName)+'bkroonga2bak\！いずれもBeckyを終了して実行すること！.txt', CP_UTF8);
 	Rewrite(f);
 	Writeln(f, 'DBバックアップ作成は、規模にもよりますがおそらく数分で完了します。');
 	Writeln(f, 'DBバックアップリストアは、規模にもよりますがおそらく数十分かかりますので、');
