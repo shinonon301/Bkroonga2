@@ -1359,7 +1359,7 @@ begin
 			repeat
 				if Pos('.mb.bak', LowerCase(srec.Name)) = 0 then
 					UpdateAllFolderDig(bka.DataFolder+srec.Name+'\');
-			until FindNext(srec) <> 0;
+			until (FindNext(srec) <> 0) or self.Terminated;
 			FindClose(srec);
 		end;
 	except on E: Exception do
@@ -1373,9 +1373,10 @@ var
 	name: String;
 begin
 	try
+        Sleep(10);
 		if FindFirst(fol+'*', faDirectory, srec) = 0 then begin
 			repeat
-				if (Pos('.', srec.Name) <> 1) and (srec.Attr and faDirectory <> 0) then begin
+				if (Pos('.', srec.Name) <> 1) and (Pos('#', srec.Name) <> 1) then begin
 					name := Copy(fol+srec.Name+'\', Length(bka.DataFolder)+1, MAX_PATH);
 					logger.debug(self.ClassName, 'UpdateAllFolderDig '+name);
 					if FileExists(bka.DataFolder+name+'folder.idx') then
@@ -1385,7 +1386,7 @@ begin
 						end;
 					UpdateAllFolderDig(fol+srec.Name+'\');
 				end;
-			until FindNext(srec) <> 0;
+			until (FindNext(srec) <> 0) or self.Terminated;
 			FindClose(srec);
 		end;
 	except on E: Exception do

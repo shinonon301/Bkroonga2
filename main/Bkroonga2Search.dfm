@@ -437,7 +437,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       ShowLines = False
       StateImages = ILMail
       TabOrder = 0
-      OnClick = TVFolderClick
+      OnChange = TVFolderChange
       OnCustomDrawItem = TVFolderCustomDrawItem
       OnMouseDown = TVFolderMouseDown
     end
