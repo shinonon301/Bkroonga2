@@ -119,16 +119,24 @@ end;
 procedure TBkroonga2MainForm.FreeGrnObjects;
 begin
 	if Assigned(Bkroonga2SearchForm) then begin
-		if Bkroonga2SearchForm.Showing then Bkroonga2SearchForm.Close;
+		if Bkroonga2SearchForm.Showing then begin
+			Bkroonga2SearchForm.ClearAllQuery;
+			Bkroonga2SearchForm.Close;
+		end else begin
+			Bkroonga2SearchForm.ClearAllQuery;
+		end;
+		Application.ProcessMessages;
 		FreeAndNil(Bkroonga2SearchForm);
 	end;
 	if Assigned(indexing) then begin
 		indexing.Terminate;
+		//Application.ProcessMessages;
 		indexing.WaitFor;
 		FreeAndNil(indexing);
 	end;
 	if Assigned(grnproc) then begin
 		grnreq.command('shutdown');
+		//Application.ProcessMessages;
 		grnproc.Waitfor;
 		FreeAndNil(grnreq);
 		FreeAndNil(grnproc);

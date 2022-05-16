@@ -275,7 +275,7 @@ var
 begin
 	Result := 0;
 	try
-		logger.debug('BKC_OnRetrieve', Format('%s %s', [AnsiString(lpMessage), AnsiString(lpMailID)]));
+		logger.debug('BKC_OnRetrieve', Format('%s', [AnsiString(lpMailID)]));
 		if Exiting then Exit;
 		tmp := ExtractFilePath(PAnsiChar(lpMailID));
 		if BeforeRetrieve <> tmp then

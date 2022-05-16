@@ -180,7 +180,6 @@ type
 		procedure IniLoad;
 		procedure IniSave;
 		procedure StartQuery;
-		procedure ClearAllQuery;
 		procedure AddHistory(s: String);
 		function MakeQstr(var sni: TArray<String>): String;
 		function MakeQueryParam(stage: Integer): TArray<String>;
@@ -227,6 +226,7 @@ type
 		{ Public 宣言 }
 		grnreqthread: TGrnRequestThread;
 		resque: TQueue<TGrnReqResult>;
+		procedure ClearAllQuery;
 		procedure SetGroongaHTTPPort(grnport: Integer);
 		procedure GetDefaultComponentPos;
 		procedure OnNotifyResque(Sender: TObject;
@@ -313,8 +313,10 @@ begin
 	if Assigned(grnreqthread) then begin
 		grnreqthread.Terminate;
 		grnreqthread.WaitFor;
+        Application.ProcessMessages;
 		FreeAndNil(grnreqthread);
 	end;
+	while resque.Count > 0 do resque.Dequeue;
 	if Assigned(resque) then FreeAndNil(resque);
 	if Assigned(grnreq) then FreeAndNil(grnreq);
 end;
@@ -383,7 +385,7 @@ var
 	json: TJSONObject;
 begin
 	if Msg.Msg = MyWndMsg then begin
-		while resque.Count > 0 do begin
+		while Assigned(grnreqthread) and (not grnreqthread.Terminated) and (resque.Count > 0) do begin
 			res := resque.Dequeue;
 			json := TJSONObject.ParseJSONValue(res.resjson) as TJSONObject;
 			try
@@ -974,6 +976,7 @@ begin
 		if Assigned(tn) then begin
 			i := Integer(tn.Data);
 			if (i >= 0) and (i < Length(TVFolName)) then
+                GroupBox1.Caption := TVFolName[i];
 				if not OnlyFolder then begin
 					fil := fil + ' && dir@^"'+TVFolName[i]+'"';
 				end else begin
@@ -1034,6 +1037,10 @@ procedure TBkroonga2SearchForm.OnNotifyResque(Sender: TObject;
 begin
 	// TWebBrowserを別スレッドから操作しようとすると固まってしまうので、
 	// Formのメインスレッドで動作させるようにPostMessageで通知するようにした
+	if Assigned(grnreqthread) then
+		if grnreqthread.Terminated then Exit;
+	Sleep(1);
+	Application.ProcessMessages;
 	PostMessage(self.Handle, MyWndMsg, 0, 0);
 end;
 
@@ -1481,7 +1488,7 @@ begin
 		logger.info(self.ClassName, Format('ReceiveFirstQuery hits=%d', [qhits]));
 		logger.debug(self.ClassName, json.ToString);
 		LVMailClear;
-		LabelHit.Caption := Format('HIT: %d (%d)', [qhits, Length(QItem)]);
+		LabelHit.Caption := Format('HIT: %d(%d)', [qhits, Length(QItem)]);
 		cnt := GetDrilldownDtCount(json);
 		logger.debug(self.ClassName, Format('ReceiveFirstQuery Drilldown Dt hits=%d', [cnt]));
 		if cnt >= 0 then begin
@@ -1518,7 +1525,7 @@ begin
 					s := bka.GetFolderDisplayName(bka.Slash2Yen(fol+'/'));
 					val := ParseDrilldownDirRecord(json, i).value;
 					logger.debug(self.ClassName, Format('ReceiveFirstQuery Drilldown Dir [%s %d]', [String.Join('/', folary), val]));
-					m := TRegEx.Match(s, '\[(.+?)\]\s+(.+)$');
+					m := TRegEx.Match(s, '\[(.+?)\]\s*(.+)$');
 					if m.Success then begin
 						// TOPを探す
 						ss := m.Groups.Item[1].Value;
@@ -1554,7 +1561,11 @@ begin
 							while True do begin
 								if ctn = nil then begin
 									tn := TVFolder.Items.AddChild(tn, ss + ' - 0 (0)');
-									TVFolName := TVFolName + [String.Join('/', folary, 0, lev)];
+									if Pos('/!', fol) = 0 then
+										TVFolName := TVFolName + [String.Join('/', folary, 0, lev)]
+									else
+										// !!!Outbox/!!!Sent とかは短くするとヒットしなくなる
+										TVFolName := TVFolName + [String.Join('/', folary)];
 									tn.Data := Pointer(Length(TVFolName)-1);
 									if s <> '' then
 										TVFolderChangeCount(tn, 0, val)
@@ -1650,8 +1661,8 @@ begin
 			AddQItem(qres);
 		end;
 		LVItemSort(False);
-		LabelHit.Caption := Format('HIT: %d (%d)', [qhits, Length(QItem)]);
-		LVMail.Refresh;
+		LabelHit.Caption := Format('HIT: %d(%d)', [qhits, Length(QItem)]);
+		LVMail.Repaint;
 		if (Length(QItem) < qhits) and (Length(QItem) < 1000) and (self.Showing) then begin
 			QuerySend(stage+1, MakeQueryParam(stage+1));
 			LabelHit.Caption := LabelHit.Caption + '...';
@@ -1659,9 +1670,10 @@ begin
 		if (stage = 1) and (LVMail.Items.Count > 0) then begin
 			//LVMail.SetFocus;
 			LVMail.ItemIndex := 0;
-			LVMail.Selected.MakeVisible(True);
+			//LVMail.Selected.MakeVisible(True);
 			LVMailClick(self);
 		end;
+        Application.ProcessMessages;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('ReceiveQuery %s %s', [E.Message, e.StackTrace]));
 	end;
@@ -1750,11 +1762,17 @@ end;
 
 procedure TBkroonga2SearchForm.LVItemSort(renew: Boolean);
 var
-	i: Integer;
+	i, idx: Integer;
 	tmpq: TArray<TGrnQueryResult>;
 	comp: IComparer<Integer>;
+	li: TListItem;
 begin
 	try
+		idx := LVMail.ItemIndex;
+		LVMail.ItemIndex := -1;
+		li := LVMail.ItemFocused;
+		LVMail.ItemFocused := nil;
+        LVMail.Selected := nil;
 		if LVSortType = SortThread then begin
 			if renew then begin
 				tmpq := Copy(QItem, 0, Length(QItem)+1);
@@ -1776,6 +1794,7 @@ begin
 				end;
 			end;
 			LVMail.Items.Count := Length(LVThread);
+			LVMail.ItemIndex := idx;
 		end else begin
 			if renew then begin
 				SetLength(LVItem, 0);
@@ -1833,6 +1852,7 @@ begin
 				TArray.Sort<Integer>(LVItem, comp);
 			end;
 			LVMail.Items.Count := Length(LVItem);
+			LVMail.ItemIndex := idx;
 		end;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('LVItemSort %s %s', [E.Message, e.StackTrace]));
@@ -1918,14 +1938,13 @@ begin
 		Item.SubItems.Add(qi.from);
 		DateTimeToString(dtstr, 'yyyy/mm/dd hh:nn:ss', qi.date);
 		Item.SubItems.Add(dtstr);
+		tmp := bka.GetFolderDisplayName(IncludeTrailingPathDelimiter(bka.Slash2Yen(qi.dir)));
 		if CBMailbox.Checked then begin
-			m := TRegEx.Match(qi.dir, '\.mb\/(.+)$', [roIgnoreCase]);
+			m := TRegEx.Match(tmp, '\[.+?\]\s*(.+)$', [roIgnoreCase]);
 			if m.Success then
 				Item.SubItems.Add(m.Groups[1].Value)
 			else
-				Item.SubItems.Add(qi.dir);
-		end else begin
-			Item.SubItems.Add(bka.GetFolderDisplayName(IncludeTrailingPathDelimiter(bka.Slash2Yen(qi.dir))));
+				Item.SubItems.Add(tmp);
 		end;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('LVMailData %s %s', [E.Message, e.StackTrace]));
@@ -1961,11 +1980,12 @@ end;
 procedure TBkroonga2SearchForm.LVMailSelectItem(Sender: TObject;
   Item: TListItem; Selected: Boolean);
 var
-    qi: TGrnQueryResult;
+	qi: TGrnQueryResult;
 	i, idx: Integer;
 	s: String;
 	dt: TDateTime;
-    tn: TTreeNode;
+	tn: TTreeNode;
+	r: TRect;
 begin
 	try
 		if Selected and Assigned(LVMail.Selected) then begin
@@ -1981,24 +2001,28 @@ begin
 							tn := tn.Parent;
 							tn.Expand(False);
 						end;
-						for idx := 0 to TVFolder.Items.Count-1 do begin
-							if TVFolder.Items[i].IsVisible then Break;
-							if TVFolder.Items[idx].IsVisible then
-								TVFolder.TopItem := TVFolder.Items[idx];
+						r := TVFolder.Items[i].DisplayRect(False);
+						if (r.Top >= 0) and (r.Top < TVFolder.ClientRect.Bottom) then Break;
+						if r.Top < 0 then begin
+							for idx := 1 to (-r.Top div (r.Bottom - r.Top)) do
+								PostMessage(TVFolder.Handle, WM_VSCROLL, SB_LINEUP, 0);
+						end else begin
+							for idx := 1 to ((r.Bottom - TVFolder.ClientRect.Bottom) div (r.Bottom - r.Top)) do
+								PostMessage(TVFolder.Handle, WM_VSCROLL, SB_LINEDOWN, 0);
 						end;
 						Break;
-                    end;
+					end;
 			end;
-			{
-			// 単にスクロールさせたいだけだけど、以下のやり方だと選択されちゃう
 			for i := 0 to Length(MonthList)-1 do begin
 				dt := bka.time_tToDateTime(StrToFloatDef(MonthList[i].key, 0));
 				if (qi.date >= GetMonthFirst(dt)) and (qi.date < GetMonthNext(dt)) then begin
-					DGMonth.Col := i;
+					if i < DGMonth.LeftCol then
+						DGMonth.LeftCol := i
+					else if i >= (DGMonth.LeftCol + DGMonth.VisibleColCount) then
+						DGMonth.LeftCol := i - DGMonth.VisibleColCount + 1;
 					Break;
 				end;
 			end;
-			}
 		end;
 		TVFolder.Refresh;
 		DGMonth.Refresh;

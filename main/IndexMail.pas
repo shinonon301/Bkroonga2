@@ -1373,10 +1373,10 @@ var
 	name: String;
 begin
 	try
-        Sleep(10);
 		if FindFirst(fol+'*', faDirectory, srec) = 0 then begin
 			repeat
-				if (Pos('.', srec.Name) <> 1) and (Pos('#', srec.Name) <> 1) then begin
+		        Sleep(1);
+				if (Pos('.', srec.Name) <> 1) and (Pos('#', srec.Name) <> 1) and ((srec.Attr and faDirectory) <> 0) then begin
 					name := Copy(fol+srec.Name+'\', Length(bka.DataFolder)+1, MAX_PATH);
 					logger.debug(self.ClassName, 'UpdateAllFolderDig '+name);
 					if FileExists(bka.DataFolder+name+'folder.idx') then

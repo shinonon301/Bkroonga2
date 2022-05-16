@@ -303,6 +303,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
           Width = 120
         end>
       DoubleBuffered = False
+      HideSelection = False
       OwnerData = True
       ReadOnly = True
       RowSelect = True
