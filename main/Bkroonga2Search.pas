@@ -122,7 +122,6 @@ type
 		procedure LVMailClick(Sender: TObject);
 		procedure LVMailData(Sender: TObject; Item: TListItem);
 		procedure LVMailDblClick(Sender: TObject);
-		procedure LVMailKeyPress(Sender: TObject; var Key: Char);
 		procedure LVMailChange(Sender: TObject; Item: TListItem; Change: TItemChange);
 		procedure LVMailColumnClick(Sender: TObject; Column: TListColumn);
 		procedure LVMailSelectItem(Sender: TObject; Item: TListItem;
@@ -177,6 +176,7 @@ type
 		ZeroMonth: Boolean;
 		OnlyFolder: Boolean;
 		TreeWidth: Integer;
+		prevsnippetidx: Integer;
 		procedure IniLoad;
 		procedure IniSave;
 		procedure StartQuery;
@@ -184,6 +184,7 @@ type
 		function MakeQstr(var sni: TArray<String>): String;
 		function MakeQueryParam(stage: Integer): TArray<String>;
 		function MakeMatchColumns: String;
+		function QueryEscape(s: String): String;
 		procedure QuerySend(qstage: Integer; param: TArray<String>);
 		function GetQueryHitCount(json: TJSONObject): Integer;
 		function GetQueryRecordCount(json: TJSONObject): Integer;
@@ -202,7 +203,7 @@ type
 		procedure LVMailClear;
 		procedure AddQItem(qi: TGrnQueryResult);
 		procedure LVItemSort(renew: Boolean);
-		function GetLVQItem(idx: Integer): TGrnQueryResult;
+		function GetLVQItemIndex(idx: Integer): Integer;
 		function ParseNumberJSONArray(j: TJSONArray): TArray<DWORD>;
 		function ParseStringJSONArray(j: TJSONArray): TArray<String>;
 		procedure TVFolderChangeCount(tn: TTreeNode; cnt, cntchild: Integer);
@@ -442,9 +443,20 @@ procedure TBkroonga2SearchForm.CBQueryKeyPress(Sender: TObject;
   var Key: Char);
 begin
 	if Key = #13 then begin
-		BtnQuery.Click;
+		if Sender is TListView then begin
+			Key := #0;
+			LVMailDblClick(Sender);
+		end else begin
+			Key := #0;
+			BtnQuery.Click;
+		end;
+	end else if Key = #9 then begin
 		Key := #0;
-	end;
+		while True do begin
+			ActiveControl := FindNextControl(ActiveControl, GetKeyState(VK_SHIFT) >= 0, True, False);
+			if (not (ActiveControl is TPanel)) and (not (ActiveControl is TWebBrowser)) and (not (ActiveControl is TDrawGrid)) then Break;
+		end;
+    end;
 end;
 
 procedure TBkroonga2SearchForm.DGMonthDrawCell(Sender: TObject; ACol,
@@ -456,6 +468,7 @@ var
 	s0, s1, s2: String;
 	cnv: TCanvas;
 	dt: TDateTime;
+	i: Integer;
 begin
 	try
 		cnv := (Sender as TDrawGrid).Canvas;
@@ -471,7 +484,9 @@ begin
 			cnv.Brush.Color := clWindow;
 		end;
 		if Assigned(LVMail.Selected) then begin
-			qi := GetLVQItem(LVMail.Selected.Index);
+			i := GetLVQItemIndex(LVMail.Selected.Index);
+			if i < 0 then Exit;
+			qi := QItem[i];
 			if (qi.date >= GetMonthFirst(dt)) and (qi.date < GetMonthNext(dt)) then
 				cnv.Brush.Color := clYellow;
 		end;
@@ -571,7 +586,9 @@ begin
 		DefaultDraw := False;
 		cnv := Sender.Canvas;
 		if Assigned(LVMail.Selected) then begin
-			qi := GetLVQItem(LVMail.Selected.Index);
+			i := GetLVQItemIndex(LVMail.Selected.Index);
+			if i < 0 then Exit;
+			qi := QItem[i];
 			i := Integer(Node.Data);
 			if (i >= 0) and (i < Length(TVFolName)) and (qi.level >= 0) then
 				if LowerCase(TVFolName[i]) = LowerCase(qi.dir) then
@@ -656,12 +673,14 @@ var
 	sni: TArray<String>;
 begin
 	try
-		logger.verbose(self.ClassName, 'LVMailClick');
+		//logger.verbose(self.ClassName, 'LVMailClick');
 		li := LVMail.Selected;
 		if Assigned(li) then begin
-			qres := GetLVQItem(li.Index);
-			if qres.level < 0 then Exit;
+			i := GetLVQItemIndex(li.Index);
+			if i < 0 then Exit;
+			qres := QItem[i];
 			if qres.snippet = '' then begin
+				if prevsnippetidx = li.Index then Exit;
 				qstr := MakeQstr(sni);
 				ocstr := ReplaceText(ReplaceText(MakeMatchColumns, 'msgid.', ''), '||', '+');
 				for i := 0 to Length(sni)-1 do
@@ -678,6 +697,7 @@ begin
 				req.cmd := 'select';
 				req.param := param;
 				grnreqthread.AddRequest(req);
+				prevsnippetidx := req.snippetidx;
 			end else begin
 				ReceiveSnippet(li.Index, nil);
 			end;
@@ -874,7 +894,7 @@ begin
 	try
 		// sniはsnippetのquery作成用。通常検索時は使わない
 		logger.verbose(self.ClassName, Format('MakeQstr %s', [Trim(CBQuery.Text)]));
-        SetLength(sni, 0);
+		SetLength(sni, 0);
 		tmp := Trim(CBQuery.Text);
 		if tmp = '' then Exit;
 		joinstr := ' ';
@@ -889,26 +909,26 @@ begin
 			if Pos('"', tmp) = 1 then begin
 				tmp := Copy(tmp, 2, Length(tmp));
 				if Pos('"', tmp) > 0 then begin
-					Result := Result + joinstr + Copy(tmp, 1, Pos('"',tmp)-1);
-					sni := sni + [Copy(tmp, 1, Pos('"',tmp)-1)];
+					sni := sni + [QueryEscape(Copy(tmp, 1, Pos('"',tmp)-1))];
+					Result := Result + joinstr + sni[Length(sni)-1];
 					tmp := Trim(Copy(tmp, Pos('"',tmp)+1, Length(tmp)));
 				end else begin
-					Result := Result + joinstr + Trim(tmp);
-					sni := sni + [Trim(tmp)];
+					sni := sni + [QueryEscape(Trim(tmp))];
+					Result := Result + joinstr + sni[Length(sni)-1];
 					tmp := '';
 				end;
 			end else begin
 				if Pos(' ', tmp) > 0 then begin
-					Result := Result + joinstr + Copy(tmp, 1, Pos(' ', tmp)-1);
-					sni := sni + [Copy(tmp, 1, Pos(' ', tmp)-1)];
+					sni := sni + [QueryEscape(Copy(tmp, 1, Pos(' ', tmp)-1))];
+					Result := Result + joinstr + sni[Length(sni)-1];
 					tmp := Trim(Copy(tmp, Pos(' ',tmp)+1, Length(tmp)));
 				end else if Pos('　', tmp) > 0 then begin
-					Result := Result + joinstr + Copy(tmp, 1, Pos('　', tmp)-1);
-					sni := sni + [Copy(tmp, 1, Pos('　', tmp)-1)];
+					sni := sni + [QueryEscape(Copy(tmp, 1, Pos('　', tmp)-1))];
+					Result := Result + joinstr + sni[Length(sni)-1];
 					tmp := Trim(Copy(tmp, Pos('　',tmp)+1, Length(tmp)));
 				end else begin
-					Result := Result + joinstr + Trim(tmp);
-					sni := sni + [Trim(tmp)];
+					sni := sni + [QueryEscape(Trim(tmp))];
+					Result := Result + joinstr + sni[Length(sni)-1];
 					tmp := '';
 				end;
 			end;
@@ -916,6 +936,11 @@ begin
 	except on E: Exception do
 		logger.error(self.ClassName, Format('MakeQstr %s %s', [E.Message, e.StackTrace]));
 	end;
+end;
+
+function TBkroonga2SearchForm.QueryEscape(s: String): String;
+begin
+	Result := ReplaceStr(ReplaceStr(ReplaceStr(ReplaceStr(s, '\', '\\'), '(', '\('), ')', '\)'), ' ', '\ ');
 end;
 
 function TBkroonga2SearchForm.MakeMatchColumns: String;
@@ -1121,14 +1146,14 @@ var
 begin
 	try
 		snistr := '';
-		qi := GetLVQItem(idx);
-		if qi.level < 0 then Exit;
+		i := GetLVQItemIndex(idx);
+		if i < 0 then Exit;
+		qi := QItem[i];
 		if (json = nil) then begin
 			logger.debug(self.ClassName, Format('ReceiveSnippet %d(cached) %X', [idx, GetCurrentThreadId]));
 			snistr := qi.snippet;
 		end else begin
 			if (idx >= 0) and (idx < Length(QItem)) then begin
-				//logger.info(self.ClassName, Format('ReceiveSnippet %d %X %s', [idx, GetCurrentThreadId, json.ToString]));
 				logger.info(self.ClassName, Format('ReceiveSnippet %d %X', [idx, GetCurrentThreadId]));
 				jary := json.GetValue<TJSONObject>('body').
 					GetValue<TJSONArray>('records').Items[0].AsType<TJSONArray>.
@@ -1138,7 +1163,7 @@ begin
 						snistr := jary.Items[i].Value
 					else
 						snistr := snistr + '<span class=dot>‥‥</span>' + jary.Items[i].Value;
-				QItem[idx].snippet := snistr;
+				QItem[GetLVQItemIndex(idx)].snippet := snistr;
 			end else begin
 				logger.info(self.ClassName, Format('ReceiveSnippet %d %X but drop', [idx, GetCurrentThreadId]));
                 Exit;
@@ -1673,7 +1698,7 @@ begin
 			//LVMail.Selected.MakeVisible(True);
 			LVMailClick(self);
 		end;
-        Application.ProcessMessages;
+		Application.ProcessMessages;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('ReceiveQuery %s %s', [E.Message, e.StackTrace]));
 	end;
@@ -1685,6 +1710,7 @@ begin
 		LVMail.Clear;
 		SetLength(LVItem, 0);
 		SetLength(QItem, 0);
+        prevsnippetidx := -1;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('LVMailClear %s %s', [E.Message, e.StackTrace]));
 	end;
@@ -1693,68 +1719,85 @@ end;
 procedure TBkroonga2SearchForm.AddQItem(qi: TGrnQueryResult);
 var
 	i, j, lv: Integer;
-	added: Boolean;
+	addidx: Integer;
+    tmplvitem: TArray<Integer>;
 begin
 	try
+		addidx := -1;
 		if LVSortType = SortThread then begin
-			added := False;
 			i := 0;
 			while i < Length(LVItem) do begin
-				if QItem[LVItem[i]].msgid_id = qi.inreplyto then begin
+				if (addidx >= 0) and (QItem[LVItem[i]].level > 0) then begin
+					Inc(i);
+				end else if QItem[LVItem[i]].msgid_id = qi.inreplyto then begin
 					// 親が見つかったときはその親にぶら下げる
-					if QItem[LVItem[i]].haschild then begin
-						j := i + 1;
-						while j < Length(LVItem) do begin
-							if QItem[LVItem[j]].level <> (QItem[LVItem[j]].level + 1) then Break;
-							Inc(j);
-						end;
-						qi.level := QItem[LVItem[i]].level + 1;
-						QItem := QItem + [qi];
-						LVItem := Copy(LVItem, 0, j) + [Length(QItem)-1] + Copy(LVItem, j, Length(LVItem));
-						Exit;
-					end else begin
+					//if QItem[LVItem[i]].haschild then begin  // 親に子が既にいたとしても兄弟なんだから何もしない
+					//	j := i + 1;
+					//	while j < Length(LVItem) do begin
+					//		if QItem[LVItem[j]].level <> (QItem[LVItem[j]].level + 1) then Break;
+					//		Inc(j);
+					//	end;
+					//	qi.level := QItem[LVItem[i]].level + 1;
+					//	QItem := QItem + [qi];
+					//	LVItem := Copy(LVItem, 0, j) + [Length(QItem)-1] + Copy(LVItem, j, Length(LVItem));
+					//	Exit;
+					//end else begin
+						//logger.debug(self.ClassName, Format('FindParent(%d) %d', [i, qi.msgid_id]));
 						QItem[LVItem[i]].haschild := True;
 						qi.level := QItem[LVItem[i]].level + 1;
 						QItem := QItem + [qi];
 						LVItem := Copy(LVItem, 0, i+1) + [Length(QItem)-1] + Copy(LVItem, i+1, Length(LVItem));
-						Exit;
-					end;
+						addidx := i+2;
+						i := i + 2;
+					//	Exit;
+					//end;
 				end else if qi.msgid_id = QItem[LVItem[i]].inreplyto then begin
 					// 子が見つかったときはその子の親になる
 					// 子は複数いる場合がある
-					// でも、なんかまだ足りない気がする？？
-					if not added then begin
+					if addidx < 0 then begin
+						//logger.debug(self.ClassName, Format('FindChild1(%d) %d', [i, qi.msgid_id]));
 						qi.haschild := True;
 						qi.level := QItem[LVItem[i]].level;
 						lv := qi.level;
 					end else begin
+						//logger.debug(self.ClassName, Format('FindChild2(%d) %d', [i, qi.msgid_id]));
 						lv := QItem[LVItem[i]].level;
 					end;
 					QItem[LVItem[i]].level := QItem[LVItem[i]].level + 1;
-					QItem[LVItem[i]].haschild := False;
 					j := i + 1;
 					while j < Length(LVItem) do begin
 						if QItem[LVItem[j]].level <= lv then Break;
 						QItem[LVItem[j]].level := QItem[LVItem[j]].level + 1;
-						QItem[LVItem[j]].haschild := False;
 						Inc(j);
 					end;
-					if not added then begin
-						QItem := QItem + [qi];
+					if addidx < 0 then begin
+						QItem := Qitem + [qi];
 						LVItem := Copy(LVItem, 0, i) + [Length(QItem)-1] + Copy(LVItem, i, Length(LVItem));
-						added := True;
+						addidx := i;
 						i := j + 1;
+						//logger.debug(self.ClassName, Format('FindChild1 i=%d,j=%d', [i, j]));
 					end else begin
-						i := j;
+						tmplvitem := Copy(LVItem, i, j-i);
+						LVItem := Copy(LVItem, 0, i) + Copy(LVItem, j, Length(LVItem));
+						LVItem := Copy(LVItem, 0, addidx+1) + tmplvitem + Copy(LVItem, addidx+1, Length(LVItem));
+						i := addidx + Length(tmplvitem) + 1;
+						//logger.debug(self.ClassName, Format('FindChild2 i=%d,j=%d', [i, j]));
 					end;
 				end else begin
 					Inc(i);
 				end;
 			end;
-			if added then Exit;
 		end;
-		QItem := QItem + [qi];
-		LVItem := LVItem + [Length(QItem)-1];
+		if addidx < 0 then begin
+			//logger.debug(self.ClassName, Format('Parent %d', [qi.msgid_id]));
+			QItem := QItem + [qi];
+			LVItem := LVItem + [Length(QItem)-1];
+		end;
+		//for i := 0 to Length(LVItem)-1 do begin
+		//	logger.debug(self.ClassName, Format('%s %d %d %d %s',
+		//		[FormatDateTime('yyyymmdd hhnnss', QItem[LVItem[i]].date),
+		//		QItem[LVItem[i]].level, QItem[LVItem[i]].msgid_id, QItem[LVItem[i]].inreplyto, QItem[LVItem[i]].subject]));
+		//end;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('AddQItem %s %s', [E.Message, e.StackTrace]));
 	end;
@@ -1800,6 +1843,7 @@ begin
 				SetLength(LVItem, 0);
 				for i := 0 to Length(QItem)-1 do
 					LVItem := LVItem + [i];
+                prevsnippetidx := -1;
 			end;
 			if LVSortType = SortSubject then begin
 				comp := TDelegatedComparer<Integer>.Create(
@@ -1859,18 +1903,20 @@ begin
 	end;
 end;
 
-function TBkroonga2SearchForm.GetLVQItem(idx: Integer): TGrnQueryResult;
+function TBkroonga2SearchForm.GetLVQItemIndex(idx: Integer): Integer;
 begin
 	try
-		Result.level := -1;
+		Result := -1;
 		if LVSortType <> SortThread then begin
 			if (idx < 0) or (idx >= Length(LVItem)) then Exit;
 			if (LVItem[idx] < 0) or (LVItem[idx] >= Length(QItem)) then Exit;
-			Result := QItem[LVItem[idx]];
+			//Result := QItem[LVItem[idx]];
+			Result := LVItem[idx];
 		end else begin
 			if (idx < 0) or (idx >= Length(LVThread)) then Exit;
 			if (LVThread[idx] < 0) or (LVThread[idx] >= Length(QItem)) then Exit;
-			Result := QItem[LVThread[idx]];
+			//Result := QItem[LVThread[idx]];
+			Result := LVThread[idx];
 		end;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('GetLVQItem %s %s', [E.Message, e.StackTrace]));
@@ -1911,8 +1957,9 @@ var
 begin
 	try
 		logger.verbose(self.ClassName, 'LVMailData');
-		qi := GetLVQItem(Item.Index);
-		if qi.level < 0 then Exit;
+		i := GetLVQItemIndex(Item.Index);
+		if i < 0 then Exit;
+		qi := QItem[i];
 		if MatchStr('attach', qi.attr) then
 			Item.ImageIndex := 1
 		else
@@ -1954,26 +2001,19 @@ end;
 procedure TBkroonga2SearchForm.LVMailDblClick(Sender: TObject);
 var
 	qi: TGrnQueryResult;
+	i: Integer;
 begin
 	try
 		logger.debug(self.ClassName, 'LVMailDblClick');
 		if Assigned(LVMail.Selected) then begin
-			qi := GetLVQItem(LVMail.Selected.Index);
-			if qi.level < 0 then Exit;
+			i := GetLVQItemIndex(LVMail.Selected.Index);
+			if i < 0 then Exit;
+			qi := QItem[i];
 			//logger.info(self.ClassName, qi.dir+'/?'+IntToHex(qi.mailid, 1));
 			bka.SetCurrentMail(AnsiString(qi.dir)+'/?'+IntToHex(qi.mailid, 1));
 		end;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('LVMailDblClick %s %s', [E.Message, e.StackTrace]));
-	end;
-end;
-
-procedure TBkroonga2SearchForm.LVMailKeyPress(Sender: TObject;
-  var Key: Char);
-begin
-	if Key = #13 then begin
-		LVMailDblClick(Sender);
-		Key := #0;
 	end;
 end;
 
@@ -1989,7 +2029,9 @@ var
 begin
 	try
 		if Selected and Assigned(LVMail.Selected) then begin
-			qi := GetLVQItem(LVMail.Selected.Index);
+			i := GetLVQItemIndex(LVMail.Selected.Index);
+			if i < 0 then Exit;
+			qi := QItem[i];
 			s := LowerCase(qi.dir);
 			for i := 0 to TVFolder.Items.Count-1 do begin
 				idx := Integer(TVFolder.Items[i].Data);

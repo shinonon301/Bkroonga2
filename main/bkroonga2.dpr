@@ -62,7 +62,8 @@ begin
 		logger.debug('CmdProc', Format('%x %x', [wnd, lp]));
 		if Exiting then Exit;
 		if LOWORD(lp) = CmdSearch then
-			Bkroonga2MainForm.OpenSearchForm;
+			if Assigned(Bkroonga2MainForm) then
+				Bkroonga2MainForm.OpenSearchForm;
 	except
 		on E: Exception do MessageBox(0, PChar('CmdProc Exception'#10+E.Message), AppName, MB_OK);
 	end;
@@ -92,7 +93,10 @@ begin
 	except
 		on E: Exception do MessageBox(0, PChar('BKC_OnStart Exception'#10+E.Message), AppName, MB_OK);
 	end;
-    Bkroonga2MainForm.StartGroonga;
+	if Assigned(Bkroonga2MainForm) then
+		Bkroonga2MainForm.StartGroonga
+	else
+        MessageBox(0, 'なぜかBkroonga2が起動していません', 'エラー', MB_ICONEXCLAMATION or MB_OK);
 	// Always return 0.
 	Result := 0;
 end;
@@ -252,11 +256,11 @@ function BKC_OnKeyDispatch(Wnd: HWND; nKey: Integer {virtual key code};
 begin
 	Result := 0;
 	try
-		logger.debug('BKC_OnKeyDispatch', Format('%x %d %d', [Wnd, nKey, nShift]));
+		logger.info('BKC_OnKeyDispatch', Format('%x %d %d', [Wnd, nKey, nShift]));
 		if Exiting then Exit;
 		IndexingPending;
 		//ThrowTimerPending;
-		if (nKey = Ord('E')) and (nShift = $20) then begin
+		if Assigned(Bkroonga2MainForm) and (nKey = Ord('E')) and (nShift = $20) then begin
 			//PostMessage(hwndMain, WM_COMMAND, CmdSearch, 0);
 			Bkroonga2MainForm.OpenSearchForm;
 			Result := 1;

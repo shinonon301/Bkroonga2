@@ -338,7 +338,7 @@ begin
 				grnreq.CreateDB;
 			end;
 			indexing := TIndexMail.Create(False, gconf.grnport);
-			Bkroonga2SearchForm := TBkroonga2SearchForm.Create(nil);
+			Bkroonga2SearchForm := TBkroonga2SearchForm.Create(self);
 			Bkroonga2SearchForm.SetGroongaHTTPPort(gconf.grnport);
             Bkroonga2SearchForm.GetDefaultComponentPos;
 		except

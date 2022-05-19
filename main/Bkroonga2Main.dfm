@@ -12,6 +12,7 @@ object Bkroonga2MainForm: TBkroonga2MainForm
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow

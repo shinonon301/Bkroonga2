@@ -75,9 +75,9 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1041</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.0.3.0;InternalName=Bkroonga2.dll;LegalCopyright=shinonon;LegalTrademarks=;OriginalFilename=bkroonga2.dll;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=Bkroonga2;ProductVersion=2.0.3;Comments=Becky! Ver.2用 Groonga高速全文検索プラグイン</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.0.4.0;InternalName=Bkroonga2.dll;LegalCopyright=shinonon;LegalTrademarks=;OriginalFilename=bkroonga2.dll;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=Bkroonga2;ProductVersion=2.0.4;Comments=Becky! Ver.2用 Groonga高速全文検索プラグイン</VerInfo_Keys>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_Release>3</VerInfo_Release>
+        <VerInfo_Release>4</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>

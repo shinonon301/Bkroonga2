@@ -12,6 +12,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   ShowHint = True
   OnCloseQuery = FormCloseQuery
@@ -71,6 +72,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       TabOrder = 1
       TabStop = True
       OnClick = CBBodyClick
+      OnKeyPress = CBQueryKeyPress
     end
     object RBOr: TRadioButton
       Left = 486
@@ -80,6 +82,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       Caption = #12356#12378#12428#12363#21547#12416'(&O)'
       TabOrder = 2
       OnClick = CBBodyClick
+      OnKeyPress = CBQueryKeyPress
     end
     object BtnQuery: TButton
       Left = 592
@@ -90,6 +93,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       Default = True
       TabOrder = 3
       OnClick = BtnQueryClick
+      OnKeyPress = CBQueryKeyPress
     end
     object BtnQuit: TButton
       Left = 726
@@ -100,6 +104,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       Caption = #38281#12376#12427'(&L)'
       TabOrder = 4
       OnClick = BtnQuitClick
+      OnKeyPress = CBQueryKeyPress
     end
     object GroupBox1: TGroupBox
       Left = 8
@@ -118,6 +123,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         State = cbChecked
         TabOrder = 4
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBBody: TCheckBox
         Left = 148
@@ -129,6 +135,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         State = cbChecked
         TabOrder = 1
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBQuote: TCheckBox
         Left = 11
@@ -140,6 +147,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         State = cbChecked
         TabOrder = 3
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBHeader: TCheckBox
         Left = 213
@@ -151,6 +159,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         State = cbChecked
         TabOrder = 2
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBMailbox: TCheckBox
         Left = 11
@@ -162,6 +171,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         State = cbChecked
         TabOrder = 0
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
     end
     object GroupBox3: TGroupBox
@@ -179,6 +189,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         Caption = #21463#20449#31665#20197#19979
         TabOrder = 0
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBIgnoreOutbox: TCheckBox
         Left = 98
@@ -190,6 +201,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         ParentBiDiMode = False
         TabOrder = 1
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBIgnoreTrash: TCheckBox
         Left = 182
@@ -201,6 +213,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         State = cbChecked
         TabOrder = 2
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
     end
     object PanelFrom: TPanel
@@ -229,6 +242,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         Caption = #12501#12521#12464#20184#12365#12398#12415'(&F)'
         TabOrder = 1
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBNewMail: TCheckBox
         Left = 149
@@ -238,6 +252,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         Caption = #26032#35215#12513#12540#12523#12398#12415'(&N)'
         TabOrder = 3
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBCcme: TCheckBox
         Left = 13
@@ -247,6 +262,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         Caption = 'Cc'#12395#33258#20998#12364#21547#12414#12428#12427'(&C)'
         TabOrder = 2
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
       object CBTome: TCheckBox
         Left = 13
@@ -256,6 +272,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         Caption = 'To'#12395#33258#20998#12364#21547#12414#12428#12427'(&E)'
         TabOrder = 0
         OnClick = CBBodyClick
+        OnKeyPress = CBQueryKeyPress
       end
     end
   end
@@ -265,7 +282,8 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
     Width = 647
     Height = 401
     Align = alClient
-    TabOrder = 1
+    TabOrder = 2
+    ExplicitHeight = 319
     object Splitter2: TSplitter
       Left = 1
       Top = 342
@@ -317,7 +335,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       OnColumnClick = LVMailColumnClick
       OnData = LVMailData
       OnDblClick = LVMailDblClick
-      OnKeyPress = LVMailKeyPress
+      OnKeyPress = CBQueryKeyPress
       OnSelectItem = LVMailSelectItem
     end
     object WBMail: TWebBrowser
@@ -363,6 +381,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
         TabOrder = 0
         OnClick = DGMonthClick
         OnDrawCell = DGMonthDrawCell
+        OnKeyPress = CBQueryKeyPress
         OnMouseDown = DGMonthMouseDown
         OnMouseWheelDown = DGMonthMouseWheelDown
         OnMouseWheelUp = DGMonthMouseWheelUp
@@ -419,7 +438,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
     Align = alLeft
     BevelOuter = bvNone
     Constraints.MinWidth = 100
-    TabOrder = 2
+    TabOrder = 1
     object TVFolder: TTreeView
       Left = 0
       Top = 0
@@ -440,6 +459,7 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
       TabOrder = 0
       OnChange = TVFolderChange
       OnCustomDrawItem = TVFolderCustomDrawItem
+      OnKeyPress = CBQueryKeyPress
       OnMouseDown = TVFolderMouseDown
     end
     object PanelTreeIn: TPanel
