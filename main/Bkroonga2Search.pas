@@ -1001,7 +1001,7 @@ begin
 		if Assigned(tn) then begin
 			i := Integer(tn.Data);
 			if (i >= 0) and (i < Length(TVFolName)) then
-                GroupBox1.Caption := TVFolName[i];
+				//GroupBox1.Caption := TVFolName[i];
 				if not OnlyFolder then begin
 					fil := fil + ' && dir@^"'+TVFolName[i]+'"';
 				end else begin
@@ -1044,8 +1044,8 @@ begin
 		end else if stage >= 1 then begin
 			// 10Œ‚¸‚Âæ“¾
 			Result := Result + [
-				'limit 10',
-				'offset '+IntToStr((stage - 1) * 10)
+				'limit '+IntToStr(gconf.hit1),
+				'offset '+IntToStr((stage - 1) * gconf.hit1)
 			];
 		end;
 		fil := Trim(fil);

@@ -12,7 +12,9 @@ type
 	TConfParams = record
 		grnexe: String;
 		grndbdir: String;
-        grnport: Integer;
+		grnport: Integer;
+		hit1: Integer;
+        maxhit: Integer;
 		bTrash: Boolean;
 		bOutbox: Boolean;
 		bInbox: Boolean;

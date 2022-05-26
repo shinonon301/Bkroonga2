@@ -8,7 +8,8 @@ uses
 	Vcl.StdCtrls, System.JSON, System.Generics.Collections, groongarequest,
 	Vcl.ExtCtrls, System.RegularExpressions, REST.Json, System.Zip, IndexMail, IniFiles,
 	Registry, Vcl.CheckLst, System.StrUtils, Clipbrd,
-	Bkroonga2Search, Vcl.ComCtrls, System.ImageList, Vcl.ImgList;
+	Bkroonga2Search, Vcl.ComCtrls, System.ImageList, Vcl.ImgList,
+	Vcl.NumberBox;
 
 type
 	TBkroonga2MainForm = class(TForm)
@@ -39,7 +40,11 @@ type
 		BtnOpenBackup: TButton;
 		LVLog: TListView;
 		IMLVIcon: TImageList;
-    Label4: TLabel;
+		Label4: TLabel;
+    NBHit: TNumberBox;
+    NBMaxHits: TNumberBox;
+		Label5: TLabel;
+		Label6: TLabel;
 		procedure FormCreate(Sender: TObject);
 		procedure FormDestroy(Sender: TObject);
 		procedure TimerTimer(Sender: TObject);
@@ -157,6 +162,8 @@ begin
 	CBInbox.Checked := gconf.bInbox;
 	EditFolderName.Text := String.Join('/', gconf.Ignore);
 	EnumMbox;
+	NBHit.Value := gconf.hit1;
+    NBMaxHits.Value := gconf.maxhit;
 end;
 
 procedure TBkroonga2MainForm.IniLoad;
@@ -177,6 +184,12 @@ begin
 			gconf.IgnoreMbx := TRegEx.Split(ReadString(AppName, 'IgnoreMailbox', ''), '/')
 		else
 			gconf.IgnoreMbx := GetDefaultIgnoreMbx;
+		gconf.hit1 := ReadInteger(AppName, 'Hit1', 100);
+		if gconf.hit1 < 10 then gconf.hit1 := 10;
+		if gconf.hit1 > 10000 then gconf.hit1 := 10000;
+		gconf.maxhit := ReadInteger(AppName, 'MaxHit', 1000);
+		if gconf.maxhit < 10 then gconf.maxhit := 10;
+		if gconf.maxhit > 10000 then gconf.maxhit := 10000;
 		Free;
 	end;
 end;
@@ -189,12 +202,14 @@ begin
 	with ini do begin
 		WriteString(AppName, 'GroongaExe', gconf.grnexe);
 		WriteString(AppName, 'DBDir', gconf.grndbdir);
-        WriteInteger(AppName, 'GroongaPort', gconf.grnport);
+		WriteInteger(AppName, 'GroongaPort', gconf.grnport);
 		WriteBool(AppName, 'bTrash', gconf.bTrash);
 		WriteBool(AppName, 'bOutbox', gconf.bOutbox);
 		WriteBool(AppName, 'bInbox', gconf.bInbox);
 		WriteString(AppName, 'Ignore', String.Join('/', gconf.Ignore));
 		WriteString(AppName, 'IgnoreMailbox', String.Join('/', gconf.IgnoreMbx));
+		WriteInteger(AppName, 'Hit1', gconf.hit1);
+		WriteInteger(AppName, 'MaxHit', gconf.maxhit);
 		Free;
 	end;
 end;
@@ -395,6 +410,8 @@ begin
 	gconf.bOutbox := CBOutbox.Checked;
 	gconf.bInbox := CBInbox.Checked;
 	gconf.Ignore := TRegEx.Split(EditFolderName.Text, '\/');
+	gconf.hit1 := Round(NBHit.Value);
+    gconf.maxhit := Round(NBMaxHits.Value);
 	SetLength(gconf.IgnoreMbx, 0);
 	for i := 0 to CLBMbx.Items.Count-1 do
 		if CLBMbx.Checked[i] then

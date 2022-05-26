@@ -84,7 +84,7 @@ end;
 // Called when the program is started and the main window is created.
 function BKC_OnStart: Integer; stdcall;
 begin
-	logger.debug('BKC_OnStart', '');
+	logger.info('BKC_OnStart', '');
 	Exiting := False;
 	BeforeRetrieve := '';
 	BeforeFolder := '';
@@ -106,7 +106,7 @@ end;
 function BKC_OnExit: Integer; stdcall;
 begin
 	try
-		logger.debug('BKC_OnExit', '');
+		logger.info('BKC_OnExit', '');
 		Exiting := True;
 		if Assigned(Bkroonga2MainForm) then begin
 			if Bkroonga2MainForm.Showing then
@@ -208,7 +208,7 @@ function BKC_OnEveryMinute: Integer; stdcall;
 begin
 	Result := 0;
 	try
-		logger.debug('BKC_OnEveryMinute', '');
+		logger.info('BKC_OnEveryMinute', '');
 		if Exiting then Exit;
 	except
 		on E: Exception do MessageBox(0, PChar('BKC_OnEveryMinute Exception'#10+E.Message), AppName, MB_OK);
@@ -256,7 +256,7 @@ function BKC_OnKeyDispatch(Wnd: HWND; nKey: Integer {virtual key code};
 begin
 	Result := 0;
 	try
-		logger.info('BKC_OnKeyDispatch', Format('%x %d %d', [Wnd, nKey, nShift]));
+		logger.debug('BKC_OnKeyDispatch', Format('%x %d %d', [Wnd, nKey, nShift]));
 		if Exiting then Exit;
 		IndexingPending;
 		//ThrowTimerPending;
@@ -326,7 +326,7 @@ function BKC_OnPlugInSetup(Wnd: HWND): Integer; stdcall;
 begin
 	Result := 0;
 	try
-		logger.debug('BKC_OnPlugInSetup', Format('%x', [Wnd]));
+		logger.info('BKC_OnPlugInSetup', Format('%x', [Wnd]));
 		if Exiting then Exit;
 		if not Assigned(Bkroonga2MainForm) then Exit;
 		if Assigned(Bkroonga2MainForm) then begin

@@ -283,7 +283,6 @@ object Bkroonga2SearchForm: TBkroonga2SearchForm
     Height = 401
     Align = alClient
     TabOrder = 2
-    ExplicitHeight = 319
     object Splitter2: TSplitter
       Left = 1
       Top = 342

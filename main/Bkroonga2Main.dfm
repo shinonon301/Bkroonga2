@@ -35,6 +35,22 @@ object Bkroonga2MainForm: TBkroonga2MainForm
     Caption = #8251#35443#32048#12399'Readme'#21442#29031
     FocusControl = EditGrnExe
   end
+  object Label5: TLabel
+    Left = 335
+    Top = 12
+    Width = 64
+    Height = 13
+    Caption = '1'#22238#12398#26908#32034#25968
+    FocusControl = NBHit
+  end
+  object Label6: TLabel
+    Left = 450
+    Top = 12
+    Width = 60
+    Height = 13
+    Caption = #26368#22823#26908#32034#25968
+    FocusControl = NBMaxHits
+  end
   object BtnParse: TButton
     Left = 711
     Top = 292
@@ -100,12 +116,12 @@ object Bkroonga2MainForm: TBkroonga2MainForm
   object EditGrnExe: TEdit
     Left = 89
     Top = 8
-    Width = 434
+    Width = 209
     Height = 21
     TabOrder = 2
   end
   object BtnGrnExe: TButton
-    Left = 529
+    Left = 304
     Top = 8
     Width = 25
     Height = 21
@@ -234,6 +250,32 @@ object Bkroonga2MainForm: TBkroonga2MainForm
     ViewStyle = vsReport
     OnData = LVLogData
     OnSelectItem = LVLogSelectItem
+  end
+  object NBHit: TNumberBox
+    Left = 401
+    Top = 8
+    Width = 42
+    Height = 21
+    MinValue = 10.000000000000000000
+    MaxValue = 1000.000000000000000000
+    MaxLength = 4
+    SmallStep = 10.000000000000000000
+    TabOrder = 12
+    Value = 100.000000000000000000
+    UseMouseWheel = True
+  end
+  object NBMaxHits: TNumberBox
+    Left = 512
+    Top = 8
+    Width = 42
+    Height = 21
+    MinValue = 10.000000000000000000
+    MaxValue = 10000.000000000000000000
+    MaxLength = 5
+    SmallStep = 10.000000000000000000
+    TabOrder = 13
+    Value = 1000.000000000000000000
+    UseMouseWheel = True
   end
   object Timer: TTimer
     Interval = 100
