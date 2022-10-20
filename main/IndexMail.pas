@@ -139,7 +139,7 @@ type
 
 const
 	MaxText = (128*1024);
-	MaxAttach = (256*1024);
+	MaxAttach = 256;//(256*1024);
 
 var
 	indexing: TIndexMail;
@@ -156,6 +156,7 @@ begin
 	fgrnport := grnport;
 	inherited Create(CreateSuspended);
 	self.FreeOnTerminate := False;
+	self.Priority := tpLowest;
 end;
 
 destructor TIndexMail.Destroy;
@@ -237,7 +238,7 @@ end;
 
 procedure TIndexMail.AddFol(fol: String);
 begin
-	logger.info(self.ClassName, 'AddFol '+fol);
+	logger.info(self.ClassName, Format('AddFol %s fcnt=%d flstcnt=%d fallcnt=%d arndcnt=%d', [fol, fcnt, flst.Count, fallcnt, arndlst.Count]));
 	FMutex.Acquire;
 	try
 		FQueue.Enqueue(fol);
@@ -248,7 +249,7 @@ end;
 
 procedure TIndexMail.Pending;
 begin
-	logger.debug(self.ClassName, 'Pending');
+	logger.debug(self.ClassName, Format('Pending fcnt=%d flstcnt=%d fallcnt=%d arndcnt=%d', [fcnt, flst.Count, fallcnt, arndlst.Count]));
 	FMutex.Acquire;
 	try
 		fcnt := 0;
@@ -271,7 +272,7 @@ begin
 		finally
 			FMutex.Release;
 		end;
-		logger.debug(self.ClassName, 'fqueextract '+s);
+		logger.debug(self.ClassName, Format('fqueextract %s fcnt=%d flstcnt=%d fallcnt=%d arndcnt=%d', [s, fcnt, flst.Count, fallcnt, arndlst.Count]));
 		Flst.Add(s);
 	end;
 end;
@@ -1373,14 +1374,15 @@ var
 	name: String;
 begin
 	try
+		logger.debug(self.ClassName, 'UpdateAllFolderDig Enter '+fol);
 		if FindFirst(fol+'*', faDirectory, srec) = 0 then begin
 			repeat
-		        Sleep(1);
+				Sleep(10);
 				if (Pos('.', srec.Name) <> 1) and (Pos('#', srec.Name) <> 1) and ((srec.Attr and faDirectory) <> 0) then begin
 					name := Copy(fol+srec.Name+'\', Length(bka.DataFolder)+1, MAX_PATH);
-					logger.debug(self.ClassName, 'UpdateAllFolderDig '+name);
 					if FileExists(bka.DataFolder+name+'folder.idx') then
 						if IsIndexingFolder(name) then begin
+							logger.debug(self.ClassName, 'UpdateAllFolderDig add '+name);
 							ArndLst.Add(name);
 							//AddFol(name);
 						end;

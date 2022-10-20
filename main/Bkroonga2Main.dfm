@@ -112,6 +112,42 @@ object Bkroonga2MainForm: TBkroonga2MainForm
       Height = 13
       Caption = 'Mail Count='
     end
+    object LabelWeb1: TLabel
+      Left = 128
+      Top = 8
+      Width = 40
+      Height = 13
+      Cursor = crHandPoint
+      Hint = 'https://github.com/shinonon301/bkroonga2/'
+      Caption = 'Website'
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnDblClick = LabelWeb1DblClick
+    end
+    object LabelWeb2: TLabel
+      Left = 128
+      Top = 27
+      Width = 40
+      Height = 13
+      Cursor = crHandPoint
+      Hint = 'https://groonga.org/ja/'
+      Caption = 'Website'
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnDblClick = LabelWeb1DblClick
+    end
   end
   object EditGrnExe: TEdit
     Left = 89

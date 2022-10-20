@@ -57,7 +57,7 @@ procedure TBgconsole.Execute;
 const
 	BUFFER_SIZE = 4096;
 	WAIT_FOR_READY = 1000;
-	WAIT_FOR_RUN = 1;
+	WAIT_FOR_RUN = 10;
 var
 	hReadPipe, hWritePipe: THandle;
 	hStdInReadPipe, hStdInWritePipe, hStdInWritePipeDup: THandle;
@@ -74,7 +74,7 @@ var
 	p, tocnt: Integer;
 	//debugproc: Boolean;
 	//debugbreak: Boolean;
-	bsuccess: Boolean;
+	bsuccess, flgterm: Boolean;
 	errmsg: String;
 begin
 	//if not FileExists(fexefn) then begin
@@ -160,6 +160,7 @@ begin
 					ReturnValue := 0;
 					tocnt := 0;
 					fRunning := True;
+                    flgterm := False;
 					while True do begin
 						(*if debugproc then begin
 							if WaitForDebugEvent(debug, 1) then begin
@@ -213,15 +214,24 @@ begin
 						//if debugbreak then Break;
 						if (ftimeout > 0) and (tocnt > ftimeout) then begin
 							ReturnValue := -1;
+							flgterm := True;
 							Break;
 						end;
-						if (fMaxlen > 0) and (Length(fresult) >= fMaxlen) then Break;
+						if (fMaxlen > 0) and (Length(fresult) >= fMaxlen) then begin
+							flgterm := True;
+							Break;
+                        end;
 					end;
+					if flgterm then
+						try
+							TerminateProcess(ProcessInfo.hProcess, 0);
+						except on E: Exception do ;
+						end;
 					if fflagresult then
 						fresult := PAnsiChar(fresult);  // NULL•¶š‚ğíœ‚·‚é
 				finally
-					CloseHandle(ProcessInfo.hProcess);
 					CloseHandle(ProcessInfo.hThread);
+					CloseHandle(ProcessInfo.hProcess);
 					CloseHandle(hStdInReadPipe);
 				end;
 			end

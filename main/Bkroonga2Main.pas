@@ -45,6 +45,8 @@ type
     NBMaxHits: TNumberBox;
 		Label5: TLabel;
 		Label6: TLabel;
+    LabelWeb1: TLabel;
+    LabelWeb2: TLabel;
 		procedure FormCreate(Sender: TObject);
 		procedure FormDestroy(Sender: TObject);
 		procedure TimerTimer(Sender: TObject);
@@ -59,6 +61,7 @@ type
 		procedure LVLogSelectItem(Sender: TObject; Item: TListItem;
 		  Selected: Boolean);
 		procedure FormShow(Sender: TObject);
+    procedure LabelWeb1DblClick(Sender: TObject);
 	private
 		{ Private 宣言 }
 		grnproc: TBgconsole;
@@ -214,6 +217,11 @@ begin
 	end;
 end;
 
+procedure TBkroonga2MainForm.LabelWeb1DblClick(Sender: TObject);
+begin
+    ShellExecute(0, 'open', PChar((Sender as TLabel).Hint), nil, nil, SW_SHOW);
+end;
+
 procedure TBkroonga2MainForm.LVLogData(Sender: TObject; Item: TListItem);
 var
 	idx: Integer;
@@ -285,81 +293,87 @@ end;
 
 procedure TBkroonga2MainForm.StartGroonga;
 begin
-	if (gconf.grnexe = '') or not(FileExists(gconf.grnexe)) then begin
-		if FileExists('C:\groonga\bin\groonga.exe') then
-			gconf.grnexe := 'C:\groonga\bin\groonga.exe'
-		else if FileExists('C:\Program Files\groonga\bin\groonga.exe') then
-			gconf.grnexe := 'C:\Program Files\groonga\bin\groonga.exe'
-		else if FileExists('C:\Program Files (x86)\groonga\bin\groonga.exe') then
-			gconf.grnexe := 'C:\Program Files (x86)\groonga\bin\groonga.exe';
+	try
 		if (gconf.grnexe = '') or not(FileExists(gconf.grnexe)) then begin
-			MessageBox(0, 'groonga.exeの場所を指定してください', AppName, MB_OK or MB_ICONINFORMATION);
-			if OpenDialog.Execute(self.Handle) then
-				gconf.grnexe := OpenDialog.FileName;
-		end;
-	end;
-	if (gconf.grnexe <> '') and FileExists(gconf.grnexe) then begin
-		IniSave;
-		if not(DirectoryExists(gconf.grndbdir)) then
-			ForceDirectories(gconf.grndbdir);
-		if not(FileExists(IncludeTrailingPathDelimiter(gconf.grndbdir) + DBName)) then begin
-			MessageBox(0, 'データベースファイルを作成します', AppName, MB_OK or MB_ICONINFORMATION);
-			grnproc := TBgconsole.Create(gconf.grnexe, '-n "' + IncludeTrailingPathDelimiter(gconf.grndbdir) + DBName +'" quit');
-			grnproc.WaitFor;
-			FreeAndNil(grnproc);
-			if not FileExists(ExtractFilePath(MyDllFileName) + 'xdoc2txt.exe') then
-				MessageBox(0,
-					PChar('xdoc2txt を導入すると添付ファイルも全文高速検索の対象にできます'#10'詳細は付属ドキュメントを参照してください'),
-					AppName, MB_OK or MB_ICONINFORMATION);
-		end;
-		try
-			try
-				grnreq := TGroongaRequest.Create(gconf.grnport);
-				grnreq.CheckShutdown;
-				FreeAndNil(grnreq);
-			except on E: Exception do
+			if FileExists('C:\groonga\bin\groonga.exe') then
+				gconf.grnexe := 'C:\groonga\bin\groonga.exe'
+			else if FileExists('C:\Program Files\groonga\bin\groonga.exe') then
+				gconf.grnexe := 'C:\Program Files\groonga\bin\groonga.exe'
+			else if FileExists('C:\Program Files (x86)\groonga\bin\groonga.exe') then
+				gconf.grnexe := 'C:\Program Files (x86)\groonga\bin\groonga.exe';
+			if (gconf.grnexe = '') or not(FileExists(gconf.grnexe)) then begin
+				MessageBox(0, 'groonga.exeの場所を指定してください', AppName, MB_OK or MB_ICONINFORMATION);
+				if OpenDialog.Execute(self.Handle) then
+					gconf.grnexe := OpenDialog.FileName;
 			end;
-			while True do begin
-				// なんかhttpポートが使われていても起動は成功しちゃうらしい(マジで！？)
-				// なので↓の工夫は意味無し
-				grnproc := TBgconsole.Create(gconf.grnexe,
-					'-d --protocol http -p '+IntToStr(gconf.grnport)+
-					' --bind-address 127.0.0.1 --default-command-version 3'+
-					' --default-request-timeout 60 "' + IncludeTrailingPathDelimiter(gconf.grndbdir) + DBName + '"');
-				while True do begin
-					if grnproc.Running then Break;
-					Sleep(10);
-				end;
-				Sleep(100);
-				if grnproc.Running then Break;
+		end;
+		if (gconf.grnexe <> '') and FileExists(gconf.grnexe) then begin
+			IniSave;
+			if not(DirectoryExists(gconf.grndbdir)) then
+				ForceDirectories(gconf.grndbdir);
+			if not(FileExists(IncludeTrailingPathDelimiter(gconf.grndbdir) + DBName)) then begin
+				MessageBox(0, 'データベースファイルを作成します', AppName, MB_OK or MB_ICONINFORMATION);
+				grnproc := TBgconsole.Create(gconf.grnexe, '-n "' + IncludeTrailingPathDelimiter(gconf.grndbdir) + DBName +'" quit');
 				grnproc.WaitFor;
 				FreeAndNil(grnproc);
-				Inc(gconf.grnport);
-				if gconf.grnport >= 10093 then Exit;
+				if not FileExists(ExtractFilePath(MyDllFileName) + 'xdoc2txt.exe') then
+					MessageBox(0,
+						PChar('xdoc2txt を導入すると添付ファイルも全文高速検索の対象にできます'#10'詳細は付属ドキュメントを参照してください'),
+						AppName, MB_OK or MB_ICONINFORMATION);
 			end;
-			grnreq := TGroongaRequest.Create(gconf.grnport);
-			grnreq.command('status');
-			LabelVer.Caption := Format('Bkroonga2 Ver. %s',
-				[szFileVersion]);
-			LabelGrnVer.Caption := Format('Groonga Ver. %s',
-				[grnreq.Result.GetValue<TJSONObject>('body').GetValue<String>('version')]);
-			//MemologAdd(grnver);
-			grnreq.command('plugin_register', ['name functions/string']);
-			grnreq.command('plugin_register', ['name functions/vector']);
-			grnreq.command('plugin_register', ['name functions/time']);
-			grnreq.command('object_exist', ['name Mails']);
-			if not grnreq.GetResBool then begin
-				//MessageBox(0, 'データベース構造を作成します', AppName, MB_OK or MB_ICONINFORMATION);
-				grnreq.CreateDB;
+			try
+				try
+					grnreq := TGroongaRequest.Create(gconf.grnport);
+					grnreq.CheckShutdown;
+					FreeAndNil(grnreq);
+				except on E: Exception do
+				end;
+				while True do begin
+					// なんかhttpポートが使われていても起動は成功しちゃうらしい(マジで！？)
+					// なので↓の工夫は意味無し
+					grnproc := TBgconsole.Create(gconf.grnexe,
+						'-d --protocol http -p '+IntToStr(gconf.grnport)+
+						' --bind-address 127.0.0.1 --default-command-version 3'+
+						' --default-request-timeout 60 "' + IncludeTrailingPathDelimiter(gconf.grndbdir) + DBName + '"');
+					while True do begin
+						if grnproc.Running then Break;
+						Sleep(10);
+					end;
+					Sleep(100);
+					if grnproc.Running then Break;
+					grnproc.WaitFor;
+					FreeAndNil(grnproc);
+					Inc(gconf.grnport);
+					if gconf.grnport >= 10093 then Exit;
+				end;
+				grnreq := TGroongaRequest.Create(gconf.grnport);
+				grnreq.command('status');
+				LabelVer.Caption := Format('Bkroonga2 Ver. %s',
+					[szFileVersion]);
+				LabelGrnVer.Caption := Format('Groonga Ver. %s',
+					[grnreq.Result.GetValue<TJSONObject>('body').GetValue<String>('version')]);
+				//MemologAdd(grnver);
+				grnreq.command('plugin_register', ['name functions/string']);
+				grnreq.command('plugin_register', ['name functions/vector']);
+				grnreq.command('plugin_register', ['name functions/time']);
+				grnreq.command('object_exist', ['name Mails']);
+				if not grnreq.GetResBool then begin
+					//MessageBox(0, 'データベース構造を作成します', AppName, MB_OK or MB_ICONINFORMATION);
+					grnreq.CreateDB;
+				end;
+				indexing := TIndexMail.Create(False, gconf.grnport);
+				Bkroonga2SearchForm := TBkroonga2SearchForm.Create(self);
+				Bkroonga2SearchForm.SetGroongaHTTPPort(gconf.grnport);
+				Bkroonga2SearchForm.GetDefaultComponentPos;
+			except
+				grnproc := nil;
 			end;
-			indexing := TIndexMail.Create(False, gconf.grnport);
-			Bkroonga2SearchForm := TBkroonga2SearchForm.Create(self);
-			Bkroonga2SearchForm.SetGroongaHTTPPort(gconf.grnport);
-            Bkroonga2SearchForm.GetDefaultComponentPos;
-		except
-			grnproc := nil;
 		end;
-	end;
+    finally
+		if not Assigned(Bkroonga2SearchForm) then begin
+            MessageBox(0, '検索ウィンドウの生成に失敗しました', AppName, MB_OK or MB_ICONEXCLAMATION);
+		end;
+    end;
 end;
 
 procedure TBkroonga2MainForm.TimerTimer(Sender: TObject);

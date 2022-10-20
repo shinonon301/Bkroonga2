@@ -261,8 +261,8 @@ begin
 		IndexingPending;
 		//ThrowTimerPending;
 		if Assigned(Bkroonga2MainForm) and (nKey = Ord('E')) and (nShift = $20) then begin
-			//PostMessage(hwndMain, WM_COMMAND, CmdSearch, 0);
-			Bkroonga2MainForm.OpenSearchForm;
+			PostMessage(hwndMain, WM_COMMAND, CmdSearch, 0);
+			//Bkroonga2MainForm.OpenSearchForm;
 			Result := 1;
 		end;
 	except
@@ -328,7 +328,6 @@ begin
 	try
 		logger.info('BKC_OnPlugInSetup', Format('%x', [Wnd]));
 		if Exiting then Exit;
-		if not Assigned(Bkroonga2MainForm) then Exit;
 		if Assigned(Bkroonga2MainForm) then begin
 			IndexingPending;
 			Bkroonga2MainForm.Position := poScreenCenter;
