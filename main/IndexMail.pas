@@ -13,51 +13,51 @@ uses
 		・idxファイルを読み込む
 		・DBから mailid,messageid,inreplytoのリストを読み込む
 		・idxにあって、DBにないmessageidのメールをインデクシングする、
-		  または、idx&DBにあってinreplytoが異なったらインデクシングする(ただしoutboxフォルダ関係の場合はインデクシングしない)
+			または、idx&DBにあってinreplytoが異なったらインデクシングする(ただしoutboxフォルダ関係の場合はインデクシングしない)
 			・新規の場合
-			  普通にインデクシングする
+				普通にインデクシングする
 			・同じMessageIdが存在した場合
-			  Mailsのinreplytoを書き換え、MailId、mdateを更新する
+				Mailsのinreplytoを書き換え、MailId、mdateを更新する
 		・idxになくてDBにある場合、MailIdsからメールIDを削除し、Mailsのmdateを更新する
-		  →ここではMailsからは削除しない
+			→ここではMailsからは削除しない
 		・インデクシングする形式
-		  load Mails
-		  [
+			load Mails
+			[
 			{
-			  _key:"idxのmessage-id",
-			  subject:"メールのsubject",
-			  date:"idxのdate",
-			  mdate:"現在日時",
-			  from:"メールのfrom",
-			  to:"メールのto",
-			  cc:"メールのcc",
-			  bcc:"メールのbcc",
-			  inreplyto:"idxのin-reply-to"
-			  body:"textパートの本文"
-			  quote:"textパートの引用文"
-			  attach:"添付ファイル"
-			  mailid:[
+				_key:"idxのmessage-id",
+				subject:"メールのsubject",
+				date:"idxのdate",
+				mdate:"現在日時",
+				from:"メールのfrom",
+				to:"メールのto",
+				cc:"メールのcc",
+				bcc:"メールのbcc",
+				inreplyto:"idxのin-reply-to"
+				body:"textパートの本文"
+				quote:"textパートの引用文"
+				attach:"添付ファイル"
+				mailid:[
 				{
-				  dir:"メールIDから?の手前まで",
-				  idx:メールIDの?のあとの16進数を数値化,
-				  msgid:"idxのmessage-id",   ←逆検索できるように
-				  attr:["idxからメールAttribute(inbox,outbox,trash,flag,tome,ccme)"]
+					dir:"メールIDから?の手前まで",
+					idx:メールIDの?のあとの16進数を数値化,
+					msgid:"idxのmessage-id",	 ←逆検索できるように
+					attr:["idxからメールAttribute(inbox,outbox,trash,flag,tome,ccme)"]
 				}
-			  ]
+				]
 			}
-		  ]
+			]
 	[メールのパース方法]
 		・先頭から読んでいって、Content-Type,Content-Transfer-Encoding,
-		  Content-Dispositonがあったら控える
+			Content-Dispositonがあったら控える
 		・空行を読んだら、マルチパートならboundaryを読み込む
 			→マルチパートなし
-			  bodyを取得する
+				bodyを取得する
 			→マルチパートあり
-			  Content-Type,Content-Transfer-Encoding,Content-Dispositionを読んで繰り返し
+				Content-Type,Content-Transfer-Encoding,Content-Dispositionを読んで繰り返し
 		・bodyについて
 			・base64,quoted-printableは先にデコードする
 			・text/*のときはcharsetを見てiso-2022-jp,euc-jpならsjisにデコードしてから、
-			  utf-8にエンコードする
+				utf-8にエンコードする
 			・それ以外はfilenameを取得して、拡張子ごとにxdoc2txtを駆使してbodyを得る
 				・zipはファイル名の羅列をbodyとする
 				・xdoc2txtの対応外ファイルはファイル名をbodyとする
@@ -66,19 +66,19 @@ uses
 			・ファイル名があるパートはファイル名とともにattachに追記していく
 	[その他]
 		・folder.iniに[Bkroonga2]セクションを作り、フォルダIDを保存しておく。
-		  フォルダのインデクシングをする際、フォルダ名の変更を検知したら、MailIdsの
-		  _keyを全て書き換える(古い_keyを削除して新しい_key)
+			フォルダのインデクシングをする際、フォルダ名の変更を検知したら、MailIdsの
+			_keyを全て書き換える(古い_keyを削除して新しい_key)
 		・Mailsにmailidが空で、かつdateがあって(dateがない場合はin-reply-toにのみ記載が
-		  あるメール)、かつmdateが1日以上前のメールがあったら削除する。1日猶予を与えている
-		  のは、他のフォルダで同じmessage-idのメールが見つかったときの登録コストをなくすため
-          いずれにせよ、MailIdsから消えているメールは検索されない。
+			あるメール)、かつmdateが1日以上前のメールがあったら削除する。1日猶予を与えている
+			のは、他のフォルダで同じmessage-idのメールが見つかったときの登録コストをなくすため
+					いずれにせよ、MailIdsから消えているメールは検索されない。
 *)
 
 type
 	TGrnFolIndex = record
-		id: DWORD;          // MailIdsの_id
+		id: DWORD;					// MailIdsの_id
 		mailid: DWORD;		// MailIdsのidx
-		msgid: String;      // MailIdsのmsgid
+		msgid: String;			// MailIdsのmsgid
 		irt: String;		// MailIdsのmsgid.inreplyto
 	end;
 	TUpdateProc = record
@@ -89,7 +89,7 @@ type
 	TIndexMail = class(TThread)
 	private
 		FQueue: TQueue<String>;		// フォルダ移動履歴キュー。他スレッドから書き込まれる
-		Flst: TStringList;	 	  	// フォルダ移動履歴。FQueueから更新される。これを元にインデックスが行われる
+		Flst: TStringList;				// フォルダ移動履歴。FQueueから更新される。これを元にインデックスが行われる
 		ArndLst: TStringList;		// フォルダ巡回
 		FMutex: TMutex;				// Flstを排他保護するMutex(たぶん必要ないはず)
 		fcnt: Integer;				// インデックスを開始するタイマー
@@ -127,7 +127,7 @@ type
 		function IsIndexingFolder(fol: String): Boolean;
 		function GetDirAge(fol: String): DWORD;
 		procedure SetDirAge(fol: String; age: DWORD);
-        function Wait100ms(cnt: Integer): Boolean;
+				function Wait100ms(cnt: Integer): Boolean;
 	public
 		constructor Create(CreateSuspended: Boolean; grnport: Integer = 10083);
 		destructor Destroy; override;
@@ -226,7 +226,7 @@ begin
 			end else begin
 				FMutex.Acquire;
 				fallcnt := 0;
-                FMutex.Release;
+				FMutex.Release;
 			end;
 		end;
 		logger.info(self.ClassName, 'Execute Loop End');
@@ -280,7 +280,7 @@ end;
 procedure TIndexMail.SetMessageText(s: String);
 begin
 	try
-		//logger.verbose(self.ClassName, 'SetMessageText '+s);
+		logger.debug(self.ClassName, 'SetMessageText '+s);
 		bka.SetMessageText(hwndMain, AnsiString(Format('%s: %s', [AppName, s])));
 	except on E: Exception do
 		logger.error(self.ClassName, Format('SetMessageText %s %s', [E.Message, E.StackTrace]));
@@ -303,7 +303,8 @@ begin
 				Result := fn;
 				Exit;
 			except
-				// ファイル作成できなかったらWinapiで再チャレンジ
+				// ファイル作成できなかったらWinapiで再チャレンジ？
+				;
 			end;
 		end;
 		SetLength(path, MAX_PATH+2);
@@ -323,7 +324,7 @@ begin
 end;
 
 function TIndexMail.GetLine(var str: RawByteString;
-  headerflg: Boolean): RawByteString;
+	headerflg: Boolean): RawByteString;
 var
 	i, st, ed: Integer;
 	line: RawByteString;
@@ -419,7 +420,7 @@ begin
 end;
 
 function TIndexMail.DivideBodyQuote(body: UTF8String;
-  var quote: UTF8String): UTF8String;
+	var quote: UTF8String): UTF8String;
 var
 	line: UTF8String;
 begin
@@ -481,28 +482,28 @@ begin
 				SetCodePage(RawByteString(src), CP_UTF8, False);
 				Result := UTF8String(src);
 			end;
-			Exit;
-		end;
-		fn := GetTempFileName(ext);
-		try
-			fs := TFileStream.Create(fn, fmCreate);
-			fs.Write(src[1], Length(src));
-		finally
-			fs.Free;
-		end;
-		try
-			ifil := '';
-			if (ext = 'vsd') or (ext = 'vsdx') then ifil := '-i ';
-			xdocproc := TBgconsole.Create(ExtractFilePath(MyDllFileName) + 'xdoc2txt.exe',
-				'-8 '+ifil+'-r=0 -o=0 "'+fn+'"',
-				True, 30000, MaxAttach);
-			if xdocproc.WaitFor = 0 then begin
-				Result := xdocproc.ResStr;
-				SetCodePage(Result, CP_UTF8, False);
+		end else begin
+			fn := GetTempFileName(ext);
+			try
+				fs := TFileStream.Create(fn, fmCreate);
+				fs.Write(src[1], Length(src));
+			finally
+				fs.Free;
 			end;
-		finally
-			if Assigned(xdocproc) then FreeAndNil(xdocproc);
-			if FileExists(fn) then DelFile(fn);
+			try
+				ifil := '';
+				if (ext = 'vsd') or (ext = 'vsdx') then ifil := '-i ';
+				xdocproc := TBgconsole.Create(ExtractFilePath(MyDllFileName) + 'xdoc2txt.exe',
+					'-8 '+ifil+'-r=0 -o=0 "'+fn+'"',
+					True, 30000, MaxAttach);
+				if xdocproc.WaitFor = 0 then begin
+					Result := xdocproc.ResStr;
+					SetCodePage(Result, CP_UTF8, False);
+				end;
+			finally
+				if Assigned(xdocproc) then FreeAndNil(xdocproc);
+				if FileExists(fn) then DelFile(fn);
+			end;
 		end;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('Xdoc %s %s', [E.Message, E.StackTrace]));
@@ -690,27 +691,32 @@ begin
 end;
 
 procedure TIndexMail.BodyOut(mails: TJSONObject;
-  body: RawByteString; ctype, cenc, cdisp: String);
+	body: RawByteString; ctype, cenc, cdisp: String);
 var
 	strm1: TMemoryStream;
 	tmpfn1, tmpfn2, fileext, fname: AnsiString;
 	fn: RawByteString;
 	quote: UTF8String;
 	zip: TZipFile;
-	i: Integer;
+	i, tmplen: Integer;
 	cnt: TJsonObject;
+	bTextPart: Boolean;
 	s: String;
 begin
 	try
 		logger.debug(self.ClassName, Format('BodyOut %s', [ctype]));
 		fname := '';
 		quote := '';
+		bTextPart := (TRegEx.IsMatch(ctype, 'text/', [roIgnoreCase]) and (not TRegEx.IsMatch(ctype, 'name=', [roIgnoreCase])));
 		if TRegEx.IsMatch(cenc, 'base64', [roIgnoreCase]) then begin
 			strm1 := TMemoryStream.Create;
 			tmpfn1 := GetTempFileName('b64');
 			tmpfn2 := GetTempFilename('txt');
 			try
-				strm1.WriteBuffer(body[1], Length(body));
+				tmplen := Length(body);
+				//テキストのbase64は4/3倍(+α)なので、iso-2022-jpも考慮して、余裕を見て4倍までに制限する
+				if bTextPart and (tmplen > (MaxText*4)) then tmplen := MaxText*4;
+				strm1.WriteBuffer(body[1], tmplen);
 				strm1.SaveToFile(String(tmpfn1));
 				if FileExists(String(tmpfn1)) then begin
 					bka.B64Convert(tmpfn2, tmpfn1, False);
@@ -733,7 +739,10 @@ begin
 			tmpfn1 := GetTempFilename('txt');
 			tmpfn2 := GetTempFilename('txt');
 			try
-				strm1.WriteBuffer(body[1], Length(body));
+				tmplen := Length(body);
+				//テキストのquoted-printableは最大3倍(+α)なので余裕を見て4倍までに制限する
+				if bTextPart and (tmplen > (MaxText*4)) then tmplen := MaxText*4;
+				strm1.WriteBuffer(body[1], tmplen);
 				strm1.SaveToFile(tmpfn1);
 				if FileExists(tmpfn1) then begin
 					bka.QPConvert(tmpfn2, tmpfn1, False);
@@ -752,8 +761,10 @@ begin
 				if FileExists(tmpfn2) then DelFile(tmpfn2);
 			end;
 		end;
-		if TRegEx.IsMatch(ctype, 'text/', [roIgnoreCase]) and (not TRegEx.IsMatch(ctype, 'name=', [roIgnoreCase])) then begin
+		if bTextPart then begin
 			// textパート
+			// iso-2022-jpで最大2倍+αなので、余裕を見て3倍までに制限する
+			if Length(body) > (MaxText*3) then body := Copy(body, 1, MaxText*3);
 			if TRegEx.IsMatch(ctype, 'text/htm', [roIgnoreCase]) then begin
 				body := Xdoc(body, 'htm', ctype);
 			end else begin
@@ -802,20 +813,26 @@ begin
 			end else if (fileext = 'zip') then begin
 				zip := TZipFile.Create;
 				strm1 := TMemoryStream.Create;
+				logger.verbose(self.ClassName, Format('zip filelen=%d (%s)', [Length(body), Copy(body, 1, 128)]));
 				try
 					try
 						zip.Encoding := TEncoding.Default;
 						strm1.WriteBuffer(body[1], Length(body));
 						zip.Open(strm1, zmRead);
 						body := UTF8String(ExtractFileName(fname)) + #13#10;
-						for i := 0 to zip.FileCount-1 do begin
-							fn := bka.UTF_8(zip.FileName[i], True);
+						for i := 0 to Length(zip.FileInfos)-1 do begin
+							SetString(fn, PAnsiChar(Pointer(zip.FileInfos[i].FileName)), Length(zip.FileInfos[i].FileName));
+							fn := bka.UTF_8(fn, True);
 							SetCodePage(fn, CP_UTF8, False);
 							body := body + fn + ' ' + UTF8String(IntToStr(zip.FileInfo[i].UncompressedSize)) + #13#10;
+							if Length(body) > MaxText then break;
 						end;
-					except on E: Exception do
-						body := UTF8String(ExtractFileName(fname)) + #13#10;
+					except on E: Exception do begin
+							logger.error(self.ClassName, Format('%s %s', [E.Message, E.StackTrace]));
+							body := UTF8String(ExtractFileName(fname)) + #13#10;
+						end;
 					end;
+					logger.verbose(self.ClassName, Format('zip len=%d %s', [Length(body), Copy(body, 1, 128)]));
 				finally
 					strm1.Free;
 					zip.Free;
@@ -858,7 +875,7 @@ begin
 		if FileExists(fn) then begin
 			try
 				DeleteFile(fn);
-                logger.verbose(self.ClassName, Format('DelFile %s', [fn]));
+								logger.verbose(self.ClassName, Format('DelFile %s', [fn]));
 			except
 			end;
 		end;
@@ -878,7 +895,7 @@ var
 	p: TUpdateProc;
 	age: DWORD;
 begin
-    Result := 0;
+		Result := 0;
 	try
 		logger.info(self.ClassName, 'UpdateFolder '+fol);
 		if not IsIndexingFolder(fol) then begin
@@ -896,7 +913,7 @@ begin
 			logger.info(self.ClassName, Format('UpdateFolder - not update age (%s)', [fol]));
 			Exit;
 		end;
-	    Result := 1;
+			Result := 1;
 		// folder.idxを読み込む
 		bka.ReadIdx(fol, idx);
 		// インデックス済みのリストを読む
@@ -978,7 +995,7 @@ var
 	i: Integer;
 begin
 	try
-        logger.verbose(self.ClassName, Format('Wait100ms %d', [cnt]));
+		logger.verbose(self.ClassName, Format('Wait100ms %d', [cnt]));
 		Result := False;
 		for i := 1 to (cnt * 10) do begin
 			if self.Terminated then begin
@@ -1077,8 +1094,8 @@ procedure TIndexMail.IndexingMail(fol: String; idxline: TIdxLine);
 var
 	mailid: String;
 	src: RawByteString;
-	json: TJSONArray;   // Mails Array
-	mid: TJSONObject;   // MailIds
+	json: TJSONArray;		// Mails Array
+	mid: TJSONObject;		// MailIds
 	selcnt: DWORD;
 	selfrom: String;
 begin
@@ -1160,7 +1177,7 @@ begin
 end;
 
 procedure TIndexMail.DeleteMailIdsFromMails(msgid: String;
-  id: DWORD);
+	id: DWORD);
 var
 	json: TJSONArray;
 begin
@@ -1377,12 +1394,12 @@ begin
 		logger.debug(self.ClassName, 'UpdateAllFolderDig Enter '+fol);
 		if FindFirst(fol+'*', faDirectory, srec) = 0 then begin
 			repeat
-				Sleep(10);
 				if (Pos('.', srec.Name) <> 1) and (Pos('#', srec.Name) <> 1) and ((srec.Attr and faDirectory) <> 0) then begin
 					name := Copy(fol+srec.Name+'\', Length(bka.DataFolder)+1, MAX_PATH);
 					if FileExists(bka.DataFolder+name+'folder.idx') then
 						if IsIndexingFolder(name) then begin
-							logger.debug(self.ClassName, 'UpdateAllFolderDig add '+name);
+							Sleep(5);
+							logger.info(self.ClassName, 'UpdateAllFolderDig add '+name);
 							ArndLst.Add(name);
 							//AddFol(name);
 						end;

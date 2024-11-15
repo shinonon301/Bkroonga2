@@ -14,13 +14,13 @@ type
 		grndbdir: String;
 		grnport: Integer;
 		hit1: Integer;
-        maxhit: Integer;
+				maxhit: Integer;
 		bTrash: Boolean;
 		bOutbox: Boolean;
 		bInbox: Boolean;
 		Ignore: TArray<String>;
-        IgnoreMbx: TArray<String>;
-    end;
+				IgnoreMbx: TArray<String>;
+		end;
 	TGroongaRequest = class(TObject)
 	private
 		fPort: Integer;
@@ -107,10 +107,16 @@ begin
 		http.ConnectTimeout := 500;
 		http.ReadTimeout := 500;
 		try
+			http.Request.Connection := 'close';
 			http.Get('http://127.0.0.1:'+IntToStr(fport)+'/d/shutdown');
 			Result := True;
 		except on E: Exception do
 			Result := False;
+		end;
+		try
+			http.Disconnect(False);
+		except
+			;
 		end;
 	finally
 		http.Free;
@@ -157,6 +163,7 @@ begin
 				logger.verbose(self.flogname, Format('%s [%s] %s', ['command', cmd, paramstr]));
 				http.Get('http://127.0.0.1:'+IntToStr(fport)+'/d/'+cmd+paramstr, res);
 			end else begin
+				http.Request.Connection := 'close';
 				http.Request.ContentType := 'application/json';
 				poststream := TStringStream.Create(json.ToString, TEncoding.UTF8);
 				logger.verbose(self.flogname,
@@ -195,6 +202,11 @@ begin
 					end;
 				end;
 			except on E: Exception do
+				;
+			end;
+			try
+				http.Disconnect(False);
+			except
 				;
 			end;
 			Result := fResult;

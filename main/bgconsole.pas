@@ -14,10 +14,10 @@ type
 		fFlagResult: Boolean;
 		fTimeout: Integer;
 		fMaxlen: Integer;
-        fRunning: Boolean;
+		fRunning: Boolean;
 	public
 		property ResStr: RawByteString read fResult;
-        property Running: Boolean read fRunning;
+		property Running: Boolean read fRunning;
 		constructor Create(exefn, cmdline: String;
 			flagresult: Boolean = False;
 			timeoutmsec: Integer = 0;
@@ -29,6 +29,11 @@ type
 implementation
 
 { TBgconsole }
+
+const
+	BUFFER_SIZE = 4096;
+	WAIT_FOR_READY = 5000;
+	WAIT_FOR_RUN = 10;
 
 constructor TBgconsole.Create(exefn, cmdline: String;
 	flagresult: Boolean = False;
@@ -54,10 +59,6 @@ begin
 end;
 
 procedure TBgconsole.Execute;
-const
-	BUFFER_SIZE = 4096;
-	WAIT_FOR_READY = 1000;
-	WAIT_FOR_RUN = 10;
 var
 	hReadPipe, hWritePipe: THandle;
 	hStdInReadPipe, hStdInWritePipe, hStdInWritePipeDup: THandle;
@@ -67,7 +68,7 @@ var
 	ProcessInfo: TProcessInformation;
 	debug: _DEBUG_EVENT;
 	dwStdOut, dwStdErr, dwRet, dwContinueStatus: DWord;
-	dwDebugEventCodePrev, dwExceptionCodePrev,  dwExceptionFlagsPrev, dwExceptionInformation0Prev, dwExceptionInformation1Prev: DWORD;
+	dwDebugEventCodePrev, dwExceptionCodePrev,	dwExceptionFlagsPrev, dwExceptionInformation0Prev, dwExceptionInformation1Prev: DWORD;
 	cmdline: String;
 	abyBuffer: RawByteString;
 	srec: TSearchRec;
@@ -111,7 +112,7 @@ begin
 				// 標準 IO にパイプの端っこを指定してやる
 				hStdInput := hStdInReadPipe;
 				hStdOutput := hWritePipe;
-				hStdError  := hErrWritePipe;
+				hStdError	 := hErrWritePipe;
 			end;
 			// コンソールアプリ起動
 			//debugbreak := False;
@@ -120,7 +121,7 @@ begin
 			// デバッグプロセスにすると異常終了を検知して終了できるようになるらしいけど、
 			// ものすごく起動が遅くなるので取りやめ
 			//bsuccess := CreateProcess(nil, PChar(cmdline), @sa, nil, true,
-			//  	CREATE_NEW_PROCESS_GROUP or DETACHED_PROCESS or DEBUG_PROCESS or DEBUG_ONLY_THIS_PROCESS,
+			//		CREATE_NEW_PROCESS_GROUP or DETACHED_PROCESS or DEBUG_PROCESS or DEBUG_ONLY_THIS_PROCESS,
 			//	//CREATE_NEW_PROCESS_GROUP or DETACHED_PROCESS or DEBUG_PROCESS or DEBUG_ONLY_THIS_PROCESS,
 			//	//CREATE_NEW_CONSOLE or NORMAL_PRIORITY_CLASS or DEBUG_PROCESS or DEBUG_ONLY_THIS_PROCESS,
 			//	nil, nil{PChar(ExtractFilePath(sCommandLine))}, StartupInfo, ProcessInfo);
@@ -133,7 +134,12 @@ begin
 			if bsuccess then begin
 				// 入力待ちになるまで待ってから，
 				//if not debugproc then begin
+				// ↓ここで起動失敗したらこれ以降の終了待ちのところですぐに抜ける
+				if Pos(LowerCase(cmdline), 'groonga.exe') > 0 then begin
+					WaitForInputIdle(ProcessInfo.hProcess, WAIT_FOR_READY * 10);
+				end else begin
 					WaitForInputIdle(ProcessInfo.hProcess, WAIT_FOR_READY);
+				end;
 				//end else begin
 				//	while (WaitForInputIdle(ProcessInfo.hProcess, 1) = WAIT_TIMEOUT) do begin
 				//		if WaitForDebugEvent(debug, 1) then begin
@@ -160,7 +166,7 @@ begin
 					ReturnValue := 0;
 					tocnt := 0;
 					fRunning := True;
-                    flgterm := False;
+					flgterm := False;
 					while True do begin
 						(*if debugproc then begin
 							if WaitForDebugEvent(debug, 1) then begin
@@ -220,7 +226,7 @@ begin
 						if (fMaxlen > 0) and (Length(fresult) >= fMaxlen) then begin
 							flgterm := True;
 							Break;
-                        end;
+						end;
 					end;
 					if flgterm then
 						try
@@ -228,14 +234,13 @@ begin
 						except on E: Exception do ;
 						end;
 					if fflagresult then
-						fresult := PAnsiChar(fresult);  // NULL文字を削除する
+						fresult := PAnsiChar(fresult);	// NULL文字を削除する
 				finally
 					CloseHandle(ProcessInfo.hThread);
 					CloseHandle(ProcessInfo.hProcess);
 					CloseHandle(hStdInReadPipe);
 				end;
-			end
-			else begin
+			end else begin
 				SetLength(errmsg, 1024);
 				FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nil, GetLastError, 0, @errmsg[1], 1024, nil);
 				logger.error(self.ClassName, 'CreateProcess Error '+fExefn+' '+fCmdline);

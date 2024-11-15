@@ -41,12 +41,12 @@ type
 		LVLog: TListView;
 		IMLVIcon: TImageList;
 		Label4: TLabel;
-    NBHit: TNumberBox;
-    NBMaxHits: TNumberBox;
+		NBHit: TNumberBox;
+		NBMaxHits: TNumberBox;
 		Label5: TLabel;
 		Label6: TLabel;
-    LabelWeb1: TLabel;
-    LabelWeb2: TLabel;
+		LabelWeb1: TLabel;
+		LabelWeb2: TLabel;
 		procedure FormCreate(Sender: TObject);
 		procedure FormDestroy(Sender: TObject);
 		procedure TimerTimer(Sender: TObject);
@@ -57,17 +57,17 @@ type
 		procedure BtnCancelClick(Sender: TObject);
 		procedure BtnGrnExeClick(Sender: TObject);
 		procedure BtnOpenBackupClick(Sender: TObject);
-	    procedure LVLogData(Sender: TObject; Item: TListItem);
+		procedure LVLogData(Sender: TObject; Item: TListItem);
 		procedure LVLogSelectItem(Sender: TObject; Item: TListItem;
-		  Selected: Boolean);
+			Selected: Boolean);
 		procedure FormShow(Sender: TObject);
-    procedure LabelWeb1DblClick(Sender: TObject);
+		procedure LabelWeb1DblClick(Sender: TObject);
 	private
 		{ Private 宣言 }
 		grnproc: TBgconsole;
 		grnreq: TGroongaRequest;
 		backupproc: TBgconsole;
-        Logs: TStringList;
+		Logs: TStringList;
 		function FormatJson(json: String): String;
 		procedure IniLoad;
 		procedure IniSave;
@@ -107,16 +107,16 @@ end;
 
 procedure TBkroonga2MainForm.FormCreate(Sender: TObject);
 begin
-    Logs := TStringList.Create;
+	Logs := TStringList.Create;
 	IniLoad;
 	if not FileExists(IniFilename) then IniSave;
 end;
 
 procedure TBkroonga2MainForm.FormDestroy(Sender: TObject);
 begin
-    IniSave;
+	IniSave;
 	FreeGrnObjects;
-    FreeAndNil(Logs);
+	FreeAndNil(Logs);
 end;
 
 procedure TBkroonga2MainForm.FormShow(Sender: TObject);
@@ -166,7 +166,7 @@ begin
 	EditFolderName.Text := String.Join('/', gconf.Ignore);
 	EnumMbox;
 	NBHit.Value := gconf.hit1;
-    NBMaxHits.Value := gconf.maxhit;
+	NBMaxHits.Value := gconf.maxhit;
 end;
 
 procedure TBkroonga2MainForm.IniLoad;
@@ -178,7 +178,7 @@ begin
 		gconf.grnexe := ReadString(AppName, 'GroongaExe', '');
 		gconf.grndbdir := ReadString(AppName, 'DBDir',
 			IncludeTrailingPathDelimiter(ExtractFilePath(IniFileName))+'bkroonga2db');
-        gconf.grnport := ReadInteger(AppName, 'GroongaPort', 10083);
+		gconf.grnport := ReadInteger(AppName, 'GroongaPort', 10083);
 		gconf.bTrash := ReadBool(AppName, 'bTrash', True);
 		gconf.bOutbox := ReadBool(AppName, 'bOutbox', False);
 		gconf.bInbox := ReadBool(AppName, 'bInbox', False);
@@ -219,7 +219,7 @@ end;
 
 procedure TBkroonga2MainForm.LabelWeb1DblClick(Sender: TObject);
 begin
-    ShellExecute(0, 'open', PChar((Sender as TLabel).Hint), nil, nil, SW_SHOW);
+		ShellExecute(0, 'open', PChar((Sender as TLabel).Hint), nil, nil, SW_SHOW);
 end;
 
 procedure TBkroonga2MainForm.LVLogData(Sender: TObject; Item: TListItem);
@@ -250,11 +250,11 @@ begin
 end;
 
 procedure TBkroonga2MainForm.LVLogSelectItem(Sender: TObject;
-  Item: TListItem; Selected: Boolean);
+	Item: TListItem; Selected: Boolean);
 begin
 	if Selected then
 		if Item.SubItems.Count > 0 then
-            Clipboard.AsText := Item.SubItems[0];
+			Clipboard.AsText := Item.SubItems[0];
 end;
 
 procedure TBkroonga2MainForm.MemoLogAdd(s: String);
@@ -277,6 +277,12 @@ end;
 
 procedure TBkroonga2MainForm.OpenSearchForm;
 begin
+	if not Assigned(grnproc) then Exit;
+	if not Assigned(Bkroonga2SearchForm) then begin
+		Bkroonga2SearchForm := TBkroonga2SearchForm.Create(self);
+		Bkroonga2SearchForm.SetGroongaHTTPPort(gconf.grnport);
+		Bkroonga2SearchForm.GetDefaultComponentPos;
+	end;
 	if Assigned(Bkroonga2SearchForm) then begin
 		Bkroonga2SearchForm.Show;
 		Bkroonga2SearchForm.CBQuery.SetFocus;
@@ -287,7 +293,7 @@ procedure TBkroonga2MainForm.ShowLastLog;
 begin
 	if LVLog.Items.Count > 0 then begin
 		LVLog.Items[LVLog.Items.Count-1].MakeVisible(True);
-        LVLog.Refresh;
+		LVLog.Refresh;
 	end;
 end;
 
@@ -361,19 +367,20 @@ begin
 					//MessageBox(0, 'データベース構造を作成します', AppName, MB_OK or MB_ICONINFORMATION);
 					grnreq.CreateDB;
 				end;
+				Application.ProcessMessages;
 				indexing := TIndexMail.Create(False, gconf.grnport);
-				Bkroonga2SearchForm := TBkroonga2SearchForm.Create(self);
-				Bkroonga2SearchForm.SetGroongaHTTPPort(gconf.grnport);
-				Bkroonga2SearchForm.GetDefaultComponentPos;
+				//Bkroonga2SearchForm := TBkroonga2SearchForm.Create(self);
+				//Bkroonga2SearchForm.SetGroongaHTTPPort(gconf.grnport);
+				//Bkroonga2SearchForm.GetDefaultComponentPos;
 			except
 				grnproc := nil;
 			end;
 		end;
-    finally
-		if not Assigned(Bkroonga2SearchForm) then begin
-            MessageBox(0, '検索ウィンドウの生成に失敗しました', AppName, MB_OK or MB_ICONEXCLAMATION);
+	finally
+		if not Assigned(grnproc) then begin
+			MessageBox(0, 'Groongaの起動に失敗しました', AppName, MB_OK or MB_ICONEXCLAMATION);
 		end;
-    end;
+	end;
 end;
 
 procedure TBkroonga2MainForm.TimerTimer(Sender: TObject);
@@ -425,13 +432,13 @@ begin
 	gconf.bInbox := CBInbox.Checked;
 	gconf.Ignore := TRegEx.Split(EditFolderName.Text, '\/');
 	gconf.hit1 := Round(NBHit.Value);
-    gconf.maxhit := Round(NBMaxHits.Value);
+	gconf.maxhit := Round(NBMaxHits.Value);
 	SetLength(gconf.IgnoreMbx, 0);
 	for i := 0 to CLBMbx.Items.Count-1 do
 		if CLBMbx.Checked[i] then
 			gconf.IgnoreMbx := gconf.IgnoreMbx + [GetCLBMbxName(i)];
 	IniSave;
-	if not Assigned(Bkroonga2SearchForm) then
+	if not Assigned(grnproc) then
 		StartGroonga;
 	Close;
 end;
@@ -517,8 +524,7 @@ begin
 		CLBMbx.Clear;
 		repeat
 			s := bka.ReadMailboxIni(srec.Name+'\', 'Account', 'Name');
-			CLBMbx.Items.Add(Format('[%s] (%s)',
-				[s, srec.Name]));
+			CLBMbx.Items.Add(Format('[%s] (%s)',[s, srec.Name]));
 		until FindNext(srec) <> 0;
 		FindClose(srec);
 	end;

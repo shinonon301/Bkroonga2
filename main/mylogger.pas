@@ -5,6 +5,11 @@ interface
 uses
 	System.SysUtils, System.Classes, System.Generics.Collections, Winapi.Windows;
 
+const
+	LogDefaultSize = Integer(1000000);
+	LogMinSize = Integer(100000);
+	LogDefaultHistory = Integer(7);
+	LogMaxHistory = Integer(99);
 type
 	TLogLevel = (LOG_VERBOSE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL);
 	TMyLogger = class(TThread)
@@ -13,14 +18,14 @@ type
 		FQueue: TQueue<String>;
 		FMaxsize: Integer;
 		FMaxhist: Integer;
-		FLogLevel: TLogLevel;           // ログファイルに出力するログレベル(デフォルト LOG_DEBUG)
+		FLogLevel: TLogLevel;						// ログファイルに出力するログレベル(デフォルト LOG_DEBUG)
 		FGlobalLogLevel: TLogLevel;		// GlobalLogに出力する(リアルタイムにモニタする)ログレベル(デフォルト LOG_INFO)
 		function nowstr: String;
 		procedure AddGlobalLog(msg: String);
 	public
 		constructor Create(logfn: String; loglev: TLogLevel = LOG_DEBUG;
-			gloglev: TLogLevel = LOG_WARN; maxsize: Integer = 1000000;
-			maxhist: Integer = 7);
+			gloglev: TLogLevel = LOG_WARN; maxsize: Integer = LogDefaultSize;
+			maxhist: Integer = LogDefaultHistory);
 		destructor Destroy; override;
 		procedure Execute; override;
 		procedure SetLogLevel(lev: TLogLevel);
@@ -46,14 +51,15 @@ implementation
 { TMyLogger }
 
 constructor TMyLogger.Create(logfn: String; loglev: TLogLevel = LOG_DEBUG;
-	gloglev: TLogLevel = LOG_WARN; maxsize: Integer = 1000000; maxhist: Integer = 7);
+	gloglev: TLogLevel = LOG_WARN; maxsize: Integer = LogDefaultSize;
+	maxhist: Integer = LogDefaultHistory);
 begin
 	FLogfn := logfn;
 	FMaxsize := maxsize;
-	if FMaxsize < (100000) then FMaxsize := 100000;
+	if FMaxsize < (LogMinSize) then FMaxsize := LogMinSize; // 100kB以下にはしない
 	FMaxhist := maxhist;
 	if FMaxhist < 0 then FMaxhist := 0;
-	if FMaxhist > 99 then FMaxhist := 99;
+	if FMaxhist > LogMaxHistory then FMaxhist := LogMaxHistory;
 	inherited Create(False);
 	SetLogLevel(loglev);
 	SetGlobalLogLevel(gloglev);
@@ -81,7 +87,7 @@ begin
 	GlobalLogQueue.Clear;
 	while not self.Terminated do begin
 		if FQueue.Count <= 0 then begin
-			Sleep(100);
+			Sleep(10);
 		end else begin
 			while FQueue.Count > 0 do begin
 				if self.Terminated then break;
@@ -140,7 +146,7 @@ begin
 		if (FLogfn <> '') and (FileExists(FLogfn)) then
 			FQueue.Enqueue(s);
 		if FGlobalLogLevel <= lev then
-            AddGlobalLog(s);
+			AddGlobalLog(s);
 	end;
 end;
 
@@ -192,3 +198,4 @@ end;
 
 
 end.
+

@@ -23,10 +23,10 @@ uses
 // Constants for BKA_GetWindowHandles
 //
 const
-	BKC_MENU_MAIN		= 0;
+	BKC_MENU_MAIN			= 0;
 	BKC_MENU_LISTVIEW	= 1;
 	BKC_MENU_TREEVIEW	= 2;
-	BKC_MENU_MSGVIEW 	= 3;
+	BKC_MENU_MSGVIEW	= 3;
 	BKC_MENU_MSGEDIT	= 4;
 	BKC_MENU_COMPOSE	= 10;
 	BKC_MENU_COMPEDIT	= 11;
@@ -45,15 +45,15 @@ const
 // Constants for BKA_GetStatus
 //
 const
-	MESSAGE_READ			= $00000001;
+	MESSAGE_READ				= $00000001;
 	MESSAGE_FORWARDED		= $00000002;
 	MESSAGE_REPLIED			= $00000004;
-	MESSAGE_ATTACHMENT		= $00000008;
+	MESSAGE_ATTACHMENT	= $00000008;
 	MESSAGE_PARTIAL			= $00000100;
 	MESSAGE_REDIRECT		= $00000200;
-	MESSAGE_FLAG			= $00001000;
-	MESSAGE_TOME			= $00010000;
-	MESSAGE_CCME			= $00020000;
+	MESSAGE_FLAG				= $00001000;
+	MESSAGE_TOME				= $00010000;
+	MESSAGE_CCME				= $00020000;
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -194,25 +194,25 @@ type
 //
 
 TIdxLine = record
-	dwBodyPtr: DWORD;		    // このメールアイテムのbmfファイル中の先頭からの位置
+	dwBodyPtr: DWORD;			// このメールアイテムのbmfファイル中の先頭からの位置
 	dwMsgID: DWORD;				// このメールアイテムをフォルダ中でユニークに識別する為のDWORD値
-	dwFileName: DWORD;			// bmfファイルのファイル名部分
-	strSubject: String;			// メールの件名
+	dwFileName: DWORD;		// bmfファイルのファイル名部分
+	strSubject: String;		// メールの件名
 	strFrom: String;			// メールの差出人
 	strTo: String;				// メールの宛先
 	strMsgId: String;			// メールのMessage-Idフィールド
-	strInreplyto: String;		// メールの参照先のMessage-Id
-	tSend: Int64;				// メールの送信日時（C言語のtime_t値）（Dateフィールドより取得）
-	tRecv: Int64;				// メールの配信日時（C言語のtime_t値）（Received フィールドより取得）
-	tDnld: Int64;				// メールの受信日時（C言語のtime_t値）（受信時に決定）
+	strInreplyto: String;	// メールの参照先のMessage-Id
+	tSend: Int64;					// メールの送信日時（C言語のtime_t値）（Dateフィールドより取得）
+	tRecv: Int64;					// メールの配信日時（C言語のtime_t値）（Received フィールドより取得）
+	tDnld: Int64;					// メールの受信日時（C言語のtime_t値）（受信時に決定）
 	dwSize: DWORD;				// メールのサイズ（バイト数）
 	dwStatus: DWORD;			// メールのステータスフラグ
 	nColor: Integer;			// カラーラベルのCOLORREF値
-	nPriority: Integer;			// ５段階の重要度
-	dwParentID: DWORD;			// スレッド表示の際の親アイテムのdwMsgID
-	strCharSet: String;			// このメールのキャラクタセット（空でも可）
+	nPriority: Integer;		// ５段階の重要度
+	dwParentID: DWORD;		// スレッド表示の際の親アイテムのdwMsgID
+	strCharSet: String;		// このメールのキャラクタセット（空でも可）
 	strTemp: String;			// テンポラリ文字列（内容は不定、通常空）
-	strExtAtch: String;			// (v2.05より）添付ファイルを別ファイルに保存している場合、
+	strExtAtch: String;		// (v2.05より）添付ファイルを別ファイルに保存している場合、
 	strCc: String;				// メールのCc
 	nTemp: Integer;				// 何に使われているのかわからん
 end;
@@ -224,64 +224,66 @@ end;
 
 TBeckyAPI = class
 	private
-		_GetVersion					: TBKA_GetVersion;
-		_Command					: TBKA_Command;
-		_GetWindowHandles			: TBKA_GetWindowHandles;
-		_RegisterCommand			: TBKA_RegisterCommand;
-		_RegisterUICallback			: TBKA_RegisterUICallback;
-		_GetDataFolder				: TBKA_GetDataFolder;
-		_GetTempFolder				: TBKA_GetTempFolder;
-		_GetTempFileName			: TBKA_GetTempFileName;
-		_GetCurrentMailBox			: TBKA_GetCurrentMailBox;
-		_SetCurrentMailBox			: TBKA_SetCurrentMailBox;
-		_GetCurrentFolder			: TBKA_GetCurrentFolder;
-		_SetCurrentFolder			: TBKA_SetCurrentFolder;
-		_GetFolderDisplayName		: TBKA_GetFolderDisplayName;
-		_SetMessageText				: TBKA_SetMessageText;
-		_GetCurrentMail				: TBKA_GetCurrentMail;
-		_SetCurrentMail				: TBKA_SetCurrentMail;
-		_GetNextMail				: TBKA_GetNextMail;
-		_SetSel						: TBKA_SetSel;
-		_AppendMessage				: TBKA_AppendMessage;
-		_MoveSelectedMessages		: TBKA_MoveSelectedMessages;
-		_GetStatus					: TBKA_GetStatus;
-		_ComposeMail				: TBKA_ComposeMail;
-		_GetCharSet					: TBKA_GetCharSet;
-		_GetSource					: TBKA_GetSource;
-		_SetSource					: TBKA_SetSource;
-		_GetHeader					: TBKA_GetHeader;
-		_GetText					: TBKA_GetText;
-		_SetText					: TBKA_SetText;
-		_GetSpecifiedHeader			: TBKA_GetSpecifiedHeader;
-		_SetSpecifiedHeader			: TBKA_SetSpecifiedHeader;
-		_CompGetCharSet				: TBKA_CompGetCharSet;
-		_CompGetSource				: TBKA_CompGetSource;
-		_CompSetSource				: TBKA_CompSetSource;
-		_CompGetHeader				: TBKA_CompGetHeader;
+		_GetVersion								: TBKA_GetVersion;
+		_Command									: TBKA_Command;
+		_GetWindowHandles					: TBKA_GetWindowHandles;
+		_RegisterCommand					: TBKA_RegisterCommand;
+		_RegisterUICallback				: TBKA_RegisterUICallback;
+		_GetDataFolder						: TBKA_GetDataFolder;
+		_GetTempFolder						: TBKA_GetTempFolder;
+		_GetTempFileName					: TBKA_GetTempFileName;
+		_GetCurrentMailBox				: TBKA_GetCurrentMailBox;
+		_SetCurrentMailBox				: TBKA_SetCurrentMailBox;
+		_GetCurrentFolder					: TBKA_GetCurrentFolder;
+		_SetCurrentFolder					: TBKA_SetCurrentFolder;
+		_GetFolderDisplayName			: TBKA_GetFolderDisplayName;
+		_SetMessageText						: TBKA_SetMessageText;
+		_GetCurrentMail						: TBKA_GetCurrentMail;
+		_SetCurrentMail						: TBKA_SetCurrentMail;
+		_GetNextMail							: TBKA_GetNextMail;
+		_SetSel										: TBKA_SetSel;
+		_AppendMessage						: TBKA_AppendMessage;
+		_MoveSelectedMessages			: TBKA_MoveSelectedMessages;
+		_GetStatus								: TBKA_GetStatus;
+		_ComposeMail							: TBKA_ComposeMail;
+		_GetCharSet								: TBKA_GetCharSet;
+		_GetSource								: TBKA_GetSource;
+		_SetSource								: TBKA_SetSource;
+		_GetHeader								: TBKA_GetHeader;
+		_GetText									: TBKA_GetText;
+		_SetText									: TBKA_SetText;
+		_GetSpecifiedHeader				: TBKA_GetSpecifiedHeader;
+		_SetSpecifiedHeader				: TBKA_SetSpecifiedHeader;
+		_CompGetCharSet						: TBKA_CompGetCharSet;
+		_CompGetSource						: TBKA_CompGetSource;
+		_CompSetSource						: TBKA_CompSetSource;
+		_CompGetHeader						: TBKA_CompGetHeader;
 		_CompGetSpecifiedHeader		: TBKA_CompGetSpecifiedHeader;
 		_CompSetSpecifiedHeader		: TBKA_CompSetSpecifiedHeader;
-		_CompGetText				: TBKA_CompGetText;
-		_CompSetText				: TBKA_CompSetText;
-		_CompAttachFile				: TBKA_CompAttachFile;
-		_AllocMem					: TBKA_Alloc;
-		_ReAllocMem					: TBKA_ReAlloc;
-		_FreeMem					: TBKA_Free;
-		_ISO_2022_JP				: TBKA_ISO_2022_JP;
-		_ISO_2022_KR				: TBKA_ISO_2022_KR;
-		_HZ_GB2312					: TBKA_HZ_GB2312;
-		_ISO_8859_2					: TBKA_ISO_8859_2;
-		_EUC_JP						: TBKA_EUC_JP;
-		_UTF_7						: TBKA_UTF_7;
-		_UTF_8						: TBKA_UTF_8;
-		_B64Convert					: TBKA_B64Convert;
-		_QPConvert					: TBKA_QPConvert;
-		_MIMEHeader					: TBKA_MIMEHeader;
-		_SerializeRcpts				: TBKA_SerializeRcpts;
-		_Connect					: TBKA_Connect;
+		_CompGetText							: TBKA_CompGetText;
+		_CompSetText							: TBKA_CompSetText;
+		_CompAttachFile						: TBKA_CompAttachFile;
+		_AllocMem									: TBKA_Alloc;
+		_ReAllocMem								: TBKA_ReAlloc;
+		_FreeMem									: TBKA_Free;
+		_ISO_2022_JP							: TBKA_ISO_2022_JP;
+		_ISO_2022_KR							: TBKA_ISO_2022_KR;
+		_HZ_GB2312								: TBKA_HZ_GB2312;
+		_ISO_8859_2								: TBKA_ISO_8859_2;
+		_EUC_JP										: TBKA_EUC_JP;
+		_UTF_7										: TBKA_UTF_7;
+		_UTF_8										: TBKA_UTF_8;
+		_B64Convert								: TBKA_B64Convert;
+		_QPConvert								: TBKA_QPConvert;
+		_MIMEHeader								: TBKA_MIMEHeader;
+		_SerializeRcpts						: TBKA_SerializeRcpts;
+		_Connect									: TBKA_Connect;
 		Bias: TDateTime;
 		function isInitialized: Boolean;
 		function EnterCriticalSection: Boolean;
 		procedure LeaveCriticalSection;
+		function PAnsiChar2RawByteString(pc: PAnsiChar): RawByteString;
+		procedure PAnsiCharFreeMem(pc: PAnsiChar);
 	protected
 		_BKA_hLib					: THandle;	// Handle of Becky Module
 	public
@@ -382,60 +384,60 @@ begin
 	_BKA_hLib := GetModuleHandle(nil);
 	if _BKA_hLib = 0 then Exit;
 
-	_GetVersion				:= TBKA_GetVersion(GetProcAddress(_BKA_hLib, 'BKA_GetVersion'));
-	_Command				:= TBKA_Command(GetProcAddress(_BKA_hLib, 'BKA_Command'));
-	_GetWindowHandles		:= TBKA_GetWindowHandles(GetProcAddress(_BKA_hLib, 'BKA_GetWindowHandles'));
-	_RegisterCommand		:= TBKA_RegisterCommand(GetProcAddress(_BKA_hLib, 'BKA_RegisterCommand'));
-	_RegisterUICallback		:= TBKA_RegisterUICallback(GetProcAddress(_BKA_hLib, 'BKA_RegisterUICallback'));
-	_GetDataFolder			:= TBKA_GetDataFolder(GetProcAddress(_BKA_hLib, 'BKA_GetDataFolder'));
-	_GetTempFolder			:= TBKA_GetTempFolder(GetProcAddress(_BKA_hLib, 'BKA_GetTempFolder'));
-	_GetTempFileName		:= TBKA_GetTempFileName(GetProcAddress(_BKA_hLib, 'BKA_GetTempFileName'));
-	_GetCurrentMailBox		:= TBKA_GetCurrentMailBox(GetProcAddress(_BKA_hLib, 'BKA_GetCurrentMailBox'));
-	_SetCurrentMailBox		:= TBKA_SetCurrentMailBox(GetProcAddress(_BKA_hLib, 'BKA_SetCurrentMailBox'));
-	_GetCurrentFolder		:= TBKA_GetCurrentFolder(GetProcAddress(_BKA_hLib, 'BKA_GetCurrentFolder'));
-	_SetCurrentFolder		:= TBKA_SetCurrentFolder(GetProcAddress(_BKA_hLib, 'BKA_SetCurrentFolder'));
-	_GetFolderDisplayName	:= TBKA_GetFolderDisplayName(GetProcAddress(_BKA_hLib, 'BKA_GetFolderDisplayName'));
-	_SetMessageText			:= TBKA_SetMessageText(GetProcAddress(_BKA_hLib, 'BKA_SetMessageText'));
-	_GetCurrentMail			:= TBKA_GetCurrentMail(GetProcAddress(_BKA_hLib, 'BKA_GetCurrentMail'));
-	_SetCurrentMail			:= TBKA_SetCurrentMail(GetProcAddress(_BKA_hLib, 'BKA_SetCurrentMail'));
-	_GetNextMail			:= TBKA_GetNextMail(GetProcAddress(_BKA_hLib, 'BKA_GetNextMail'));
-	_SetSel					:= TBKA_SetSel(GetProcAddress(_BKA_hLib, 'BKA_SetSel'));
-	_AppendMessage			:= TBKA_AppendMessage(GetProcAddress(_BKA_hLib, 'BKA_AppendMessage'));
-	_MoveSelectedMessages	:= TBKA_MoveSelectedMessages(GetProcAddress(_BKA_hLib, 'BKA_MoveSelectedMessages'));
-	_GetStatus				:= TBKA_GetStatus(GetProcAddress(_BKA_hLib, 'BKA_GetStatus'));
-	_ComposeMail			:= TBKA_ComposeMail(GetProcAddress(_BKA_hLib, 'BKA_ComposeMail'));
-	_GetCharSet				:= TBKA_GetCharSet(GetProcAddress(_BKA_hLib, 'BKA_GetCharSet'));
-	_GetSource				:= TBKA_GetSource(GetProcAddress(_BKA_hLib, 'BKA_GetSource'));
-	_SetSource				:= TBKA_SetSource(GetProcAddress(_BKA_hLib, 'BKA_SetSource'));
-	_GetHeader				:= TBKA_GetHeader(GetProcAddress(_BKA_hLib, 'BKA_GetHeader'));
-	_GetText				:= TBKA_GetText(GetProcAddress(_BKA_hLib, 'BKA_GetText'));
-	_SetText				:= TBKA_SetText(GetProcAddress(_BKA_hLib, 'BKA_SetText'));
-	_GetSpecifiedHeader		:= TBKA_GetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_GetSpecifiedHeader'));
-	_SetSpecifiedHeader		:= TBKA_SetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_SetSpecifiedHeader'));
-	_CompGetCharSet			:= TBKA_CompGetCharSet(GetProcAddress(_BKA_hLib, 'BKA_CompGetCharSet'));
-	_CompGetSource			:= TBKA_CompGetSource(GetProcAddress(_BKA_hLib, 'BKA_CompGetSource'));
-	_CompSetSource			:= TBKA_CompSetSource(GetProcAddress(_BKA_hLib, 'BKA_CompSetSource'));
-	_CompGetHeader			:= TBKA_CompGetHeader(GetProcAddress(_BKA_hLib, 'BKA_CompGetHeader'));
-	_CompGetSpecifiedHeader	:= TBKA_CompGetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_CompGetSpecifiedHeader'));
-	_CompSetSpecifiedHeader	:= TBKA_CompSetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_CompSetSpecifiedHeader'));
-	_CompGetText			:= TBKA_CompGetText(GetProcAddress(_BKA_hLib, 'BKA_CompGetText'));
-	_CompSetText			:= TBKA_CompSetText(GetProcAddress(_BKA_hLib, 'BKA_CompSetText'));
-	_CompAttachFile			:= TBKA_CompAttachFile(GetProcAddress(_BKA_hLib, 'BKA_CompAttachFile'));
-	_AllocMem				:= TBKA_Alloc(GetProcAddress(_BKA_hLib, 'BKA_Alloc'));
-	_ReAllocMem				:= TBKA_ReAlloc(GetProcAddress(_BKA_hLib, 'BKA_ReAlloc'));
-	_FreeMem				:= TBKA_Free(GetProcAddress(_BKA_hLib, 'BKA_Free'));
-	_ISO_2022_JP			:= TBKA_ISO_2022_JP(GetProcAddress(_BKA_hLib, 'BKA_ISO_2022_JP'));
-	_ISO_2022_KR			:= TBKA_ISO_2022_KR(GetProcAddress(_BKA_hLib, 'BKA_ISO_2022_KR'));
-	_HZ_GB2312				:= TBKA_HZ_GB2312(GetProcAddress(_BKA_hLib, 'BKA_HZ_GB2312'));
-	_ISO_8859_2				:= TBKA_ISO_8859_2(GetProcAddress(_BKA_hLib, 'BKA_ISO_8859_2'));
-	_EUC_JP					:= TBKA_EUC_JP(GetProcAddress(_BKA_hLib, 'BKA_EUC_JP'));
-	_UTF_7					:= TBKA_UTF_7(GetProcAddress(_BKA_hLib, 'BKA_UTF_7'));
-	_UTF_8					:= TBKA_UTF_8(GetProcAddress(_BKA_hLib, 'BKA_UTF_8'));
-	_B64Convert				:= TBKA_B64Convert(GetProcAddress(_BKA_hLib, 'BKA_B64Convert'));
-	_QPConvert				:= TBKA_QPConvert(GetProcAddress(_BKA_hLib, 'BKA_QPConvert'));
-	_MIMEHeader				:= TBKA_MIMEHeader(GetProcAddress(_BKA_hLib, 'BKA_MIMEHeader'));
-	_SerializeRcpts			:= TBKA_SerializeRcpts(GetProcAddress(_BKA_hLib, 'BKA_SerializeRcpts'));
-	_Connect				:= TBKA_Connect(GetProcAddress(_BKA_hLib, 'BKA_Connect'));
+	_GetVersion := TBKA_GetVersion(GetProcAddress(_BKA_hLib, 'BKA_GetVersion'));
+	_Command := TBKA_Command(GetProcAddress(_BKA_hLib, 'BKA_Command'));
+	_GetWindowHandles := TBKA_GetWindowHandles(GetProcAddress(_BKA_hLib, 'BKA_GetWindowHandles'));
+	_RegisterCommand := TBKA_RegisterCommand(GetProcAddress(_BKA_hLib, 'BKA_RegisterCommand'));
+	_RegisterUICallback := TBKA_RegisterUICallback(GetProcAddress(_BKA_hLib, 'BKA_RegisterUICallback'));
+	_GetDataFolder := TBKA_GetDataFolder(GetProcAddress(_BKA_hLib, 'BKA_GetDataFolder'));
+	_GetTempFolder := TBKA_GetTempFolder(GetProcAddress(_BKA_hLib, 'BKA_GetTempFolder'));
+	_GetTempFileName := TBKA_GetTempFileName(GetProcAddress(_BKA_hLib, 'BKA_GetTempFileName'));
+	_GetCurrentMailBox := TBKA_GetCurrentMailBox(GetProcAddress(_BKA_hLib, 'BKA_GetCurrentMailBox'));
+	_SetCurrentMailBox := TBKA_SetCurrentMailBox(GetProcAddress(_BKA_hLib, 'BKA_SetCurrentMailBox'));
+	_GetCurrentFolder := TBKA_GetCurrentFolder(GetProcAddress(_BKA_hLib, 'BKA_GetCurrentFolder'));
+	_SetCurrentFolder := TBKA_SetCurrentFolder(GetProcAddress(_BKA_hLib, 'BKA_SetCurrentFolder'));
+	_GetFolderDisplayName := TBKA_GetFolderDisplayName(GetProcAddress(_BKA_hLib, 'BKA_GetFolderDisplayName'));
+	_SetMessageText := TBKA_SetMessageText(GetProcAddress(_BKA_hLib, 'BKA_SetMessageText'));
+	_GetCurrentMail := TBKA_GetCurrentMail(GetProcAddress(_BKA_hLib, 'BKA_GetCurrentMail'));
+	_SetCurrentMail := TBKA_SetCurrentMail(GetProcAddress(_BKA_hLib, 'BKA_SetCurrentMail'));
+	_GetNextMail := TBKA_GetNextMail(GetProcAddress(_BKA_hLib, 'BKA_GetNextMail'));
+	_SetSel := TBKA_SetSel(GetProcAddress(_BKA_hLib, 'BKA_SetSel'));
+	_AppendMessage := TBKA_AppendMessage(GetProcAddress(_BKA_hLib, 'BKA_AppendMessage'));
+	_MoveSelectedMessages := TBKA_MoveSelectedMessages(GetProcAddress(_BKA_hLib, 'BKA_MoveSelectedMessages'));
+	_GetStatus := TBKA_GetStatus(GetProcAddress(_BKA_hLib, 'BKA_GetStatus'));
+	_ComposeMail := TBKA_ComposeMail(GetProcAddress(_BKA_hLib, 'BKA_ComposeMail'));
+	_GetCharSet := TBKA_GetCharSet(GetProcAddress(_BKA_hLib, 'BKA_GetCharSet'));
+	_GetSource := TBKA_GetSource(GetProcAddress(_BKA_hLib, 'BKA_GetSource'));
+	_SetSource := TBKA_SetSource(GetProcAddress(_BKA_hLib, 'BKA_SetSource'));
+	_GetHeader := TBKA_GetHeader(GetProcAddress(_BKA_hLib, 'BKA_GetHeader'));
+	_GetText := TBKA_GetText(GetProcAddress(_BKA_hLib, 'BKA_GetText'));
+	_SetText := TBKA_SetText(GetProcAddress(_BKA_hLib, 'BKA_SetText'));
+	_GetSpecifiedHeader := TBKA_GetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_GetSpecifiedHeader'));
+	_SetSpecifiedHeader := TBKA_SetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_SetSpecifiedHeader'));
+	_CompGetCharSet := TBKA_CompGetCharSet(GetProcAddress(_BKA_hLib, 'BKA_CompGetCharSet'));
+	_CompGetSource := TBKA_CompGetSource(GetProcAddress(_BKA_hLib, 'BKA_CompGetSource'));
+	_CompSetSource := TBKA_CompSetSource(GetProcAddress(_BKA_hLib, 'BKA_CompSetSource'));
+	_CompGetHeader := TBKA_CompGetHeader(GetProcAddress(_BKA_hLib, 'BKA_CompGetHeader'));
+	_CompGetSpecifiedHeader := TBKA_CompGetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_CompGetSpecifiedHeader'));
+	_CompSetSpecifiedHeader := TBKA_CompSetSpecifiedHeader(GetProcAddress(_BKA_hLib, 'BKA_CompSetSpecifiedHeader'));
+	_CompGetText := TBKA_CompGetText(GetProcAddress(_BKA_hLib, 'BKA_CompGetText'));
+	_CompSetText := TBKA_CompSetText(GetProcAddress(_BKA_hLib, 'BKA_CompSetText'));
+	_CompAttachFile := TBKA_CompAttachFile(GetProcAddress(_BKA_hLib, 'BKA_CompAttachFile'));
+	_AllocMem := TBKA_Alloc(GetProcAddress(_BKA_hLib, 'BKA_Alloc'));
+	_ReAllocMem := TBKA_ReAlloc(GetProcAddress(_BKA_hLib, 'BKA_ReAlloc'));
+	_FreeMem := TBKA_Free(GetProcAddress(_BKA_hLib, 'BKA_Free'));
+	_ISO_2022_JP := TBKA_ISO_2022_JP(GetProcAddress(_BKA_hLib, 'BKA_ISO_2022_JP'));
+	_ISO_2022_KR := TBKA_ISO_2022_KR(GetProcAddress(_BKA_hLib, 'BKA_ISO_2022_KR'));
+	_HZ_GB2312 := TBKA_HZ_GB2312(GetProcAddress(_BKA_hLib, 'BKA_HZ_GB2312'));
+	_ISO_8859_2 := TBKA_ISO_8859_2(GetProcAddress(_BKA_hLib, 'BKA_ISO_8859_2'));
+	_EUC_JP := TBKA_EUC_JP(GetProcAddress(_BKA_hLib, 'BKA_EUC_JP'));
+	_UTF_7 := TBKA_UTF_7(GetProcAddress(_BKA_hLib, 'BKA_UTF_7'));
+	_UTF_8 := TBKA_UTF_8(GetProcAddress(_BKA_hLib, 'BKA_UTF_8'));
+	_B64Convert := TBKA_B64Convert(GetProcAddress(_BKA_hLib, 'BKA_B64Convert'));
+	_QPConvert := TBKA_QPConvert(GetProcAddress(_BKA_hLib, 'BKA_QPConvert'));
+	_MIMEHeader := TBKA_MIMEHeader(GetProcAddress(_BKA_hLib, 'BKA_MIMEHeader'));
+	_SerializeRcpts := TBKA_SerializeRcpts(GetProcAddress(_BKA_hLib, 'BKA_SerializeRcpts'));
+	_Connect := TBKA_Connect(GetProcAddress(_BKA_hLib, 'BKA_Connect'));
 
 	if (not Assigned(_GetVersion)) or
 		(not Assigned(_Command)) or
@@ -653,28 +655,44 @@ begin
 	//mtx.Release;
 end;
 
-function TBeckyAPI.MIMEHeader(sIn: RawByteString; var sCharSet: RawByteString;
-  bEncode: LongBool): RawByteString;
-var
-    pc: PAnsiChar;
+function TBeckyAPI.PAnsiChar2RawByteString(pc: PAnsiChar): RawByteString;
+//var
+	//len: Integer;
 begin
-	//logger.verbose('TBeckyAPI', 'MIMEHeader '+IntToStr(Integer(bEncode))+','+Copy(sIn, 1, 16));
-	Result := '';
+	//len := System.AnsiStrings.StrLen(pc);
+	//SetLength(Result, len);
+	//Move(pc^, Result[1], len);
+	Result := PAnsiChar(pc);
+end;
+
+procedure TBeckyAPI.PAnsiCharFreeMem(pc: PAnsiChar);
+begin
+	if Assigned(pc) then begin
+		FreeMem(pc);
+	end;
+end;
+
+function TBeckyAPI.MIMEHeader(sIn: RawByteString; var sCharSet: RawByteString;
+	bEncode: LongBool): RawByteString;
+var
+	pc: PAnsiChar;
+begin
+	logger.verbose('TBeckyAPI', 'MIMEHeader '+IntToStr(Integer(bEncode))+','+Copy(sIn, 1, 16));
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		SetLength(sCharSet, 256);
 		pc := self._MIMEHeader(PAnsiChar(sIn), PAnsiChar(sCharSet), 255, bEncode);
-		Result := PAnsiChar(pc);
+		Result := PAnsiChar2RawByteString(pc);
 		sCharSet := PAnsiChar(sCharSet);
-		self._FreeMem(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.MoveSelectedMessages(sFolderId: RawByteString;
-  bCopy: LongBool): LongBool;
+	bCopy: LongBool): LongBool;
 begin
 	logger.verbose('TBeckyAPI', 'MoveSelectedMessages '+sFolderId);
 	Result := False;
@@ -751,9 +769,9 @@ begin
 							SetCodePage(tmp2, CP_UTF8, False);
 							SetCodePage(tmp3, CP_UTF8, False);
 						end else begin
-							SetCodePage(tmp1, 932, False);  // CP_932
-							SetCodePage(tmp2, 932, False);  // CP_932
-							SetCodePage(tmp3, 932, False);  // CP_932
+							SetCodePage(tmp1, 932, False);	// CP_932
+							SetCodePage(tmp2, 932, False);	// CP_932
+							SetCodePage(tmp3, 932, False);	// CP_932
 						end;
 					end;
 					Result.strSubject := tmp1;
@@ -774,7 +792,6 @@ var
 	inifn: String;
 begin
 	try
-		Result := '';
 		inifn := IncludeTrailingPathDelimiter(DataFolder+fol)+'folder.ini';
 		if not FileExists(inifn) then begin
 			logger.error(self.ClassName, 'FolIni Not Exists('+inifn+') in ReadFolIni');
@@ -901,7 +918,7 @@ begin
 			try
 				CloseFile(tmpf);
 			except
-                ;
+				;
 			end;
 		end;
 		Result := True;
@@ -926,7 +943,7 @@ begin
 			try
 				DeleteFile(tmpfn);
 			except
-                ;
+				;
 			end;
 		end;
 		Result := True;
@@ -935,61 +952,58 @@ begin
 end;
 
 function TBeckyAPI.ISO_2022_JP(sSrc: RawByteString;
-  bEncode: LongBool): RawByteString;
+	bEncode: LongBool): RawByteString;
 var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'ISO_2022_JP '+IntToStr(Integer(bEncode))+','+Copy(sSrc, 1, 16));
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._ISO_2022_JP(PAnsiChar(AnsiString(sSrc)), bEncode);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.ISO_2022_KR(sSrc: RawByteString;
-  bEncode: LongBool): RawByteString;
+	bEncode: LongBool): RawByteString;
 var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'ISO_2022_KR '+IntToStr(Integer(bEncode))+','+Copy(sSrc, 1, 16));
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._ISO_2022_KR(PAnsiChar(AnsiString(sSrc)), bEncode);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.ISO_8859_2(sSrc: RawByteString;
-  bEncode: LongBool): RawByteString;
+	bEncode: LongBool): RawByteString;
 var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'ISO_8859_2 '+IntToStr(Integer(bEncode))+','+Copy(sSrc, 1, 16));
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._ISO_8859_2(PAnsiChar(AnsiString(sSrc)), bEncode);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.QPConvert(sOutFile, sInFile: RawByteString;
-  bEncode: LongBool): LongBool;
+	bEncode: LongBool): LongBool;
 begin
 	logger.verbose('TBeckyAPI', 'QPConvert '+IntToStr(Integer(bEncode))+','+sInFile+'->'+sOutFile);
 	Result := False;
@@ -1016,7 +1030,7 @@ begin
 end;
 
 function TBeckyAPI.RegisterCommand(sComment: RawByteString;
-  nTarget: Integer; lpCallback: TBKA_CB_CmdProc): Longword;
+	nTarget: Integer; lpCallback: TBKA_CB_CmdProc): Longword;
 begin
 	logger.verbose('TBeckyAPI', 'RegisterCommand '+sComment);
 	Result := 0;
@@ -1030,7 +1044,7 @@ begin
 end;
 
 function TBeckyAPI.RegisterUICallback(nId: Longword;
-  lpCallback: TBKA_CB_CmdUIProc): Longword;
+	lpCallback: TBKA_CB_CmdUIProc): Longword;
 begin
 	logger.verbose('TBeckyAPI', 'RegisterUICallback');
 	Result := 0;
@@ -1044,20 +1058,19 @@ begin
 end;
 
 function TBeckyAPI.SerializeRcpts(
-  sAddresses: RawByteString): RawByteString;
+	sAddresses: RawByteString): RawByteString;
 var
-    pc: PAnsiChar;
+	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'SerializeRcpts');
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._SerializeRcpts(PAnsiChar(AnsiString(sAddresses)));
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1157,38 +1170,36 @@ begin
 end;
 
 function TBeckyAPI.UTF_7(sSrc: RawByteString;
-  bEncode: LongBool): RawByteString;
+	bEncode: LongBool): RawByteString;
 var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'UTF_7 '+IntToStr(Integer(bEncode))+','+Copy(sSrc, 1, 16));
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._UTF_7(PAnsiChar(AnsiString(sSrc)), bEncode);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.UTF_8(sSrc: RawByteString;
-  bEncode: LongBool): RawByteString;
+	bEncode: LongBool): RawByteString;
 var
-    pc: PAnsiChar;
+	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'UTF_8 '+IntToStr(Integer(bEncode))+','+Copy(sSrc, 1, 16));
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._UTF_8(PAnsiChar(AnsiString(sSrc)), bEncode);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1219,7 +1230,7 @@ begin
 end;
 
 function TBeckyAPI.B64Convert(sOutFile, sInFile: RawByteString;
-  bEncode: LongBool): LongBool;
+	bEncode: LongBool): LongBool;
 begin
 	logger.verbose('TBeckyAPI', 'B64Convert '+IntToStr(Integer(bEncode))+','+sInFile+'->'+sOutFile);
 	Result := False;
@@ -1235,6 +1246,7 @@ end;
 procedure TBeckyAPI.Command(wnd: HWND; cmd: RawByteString);
 begin
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'Command '+cmd);
 	EnterCriticalSection;
 	try
 		self._Command(wnd, PAnsiChar(AnsiString(cmd)));
@@ -1244,9 +1256,10 @@ begin
 end;
 
 procedure TBeckyAPI.CompAttachFile(wnd: HWND; sAttachFile,
-  sMimeType: RawByteString);
+	sMimeType: RawByteString);
 begin
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompAttachFile '+sMimeType);
 	EnterCriticalSection;
 	try
 		self._CompAttachFile(wnd, PAnsiChar(AnsiString(sAttachFile)), PAnsiChar(AnsiString(sMimeType)));
@@ -1259,6 +1272,7 @@ function TBeckyAPI.CompGetCharSet(wnd: HWND; var sCharSet: RawByteString): Integ
 begin
 	Result := 0;
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompGetCharSet');
 	EnterCriticalSection;
 	try
 		SetLength(sCharSet, 256);
@@ -1273,15 +1287,15 @@ function TBeckyAPI.CompGetHeader(wnd: HWND): RawByteString;
 var
 	pc: PAnsiChar;
 begin
-	Result := '';
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompGetHeader');
 	EnterCriticalSection;
 	try
 		pc := self._CompGetHeader(wnd);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1289,22 +1303,23 @@ function TBeckyAPI.CompGetSource(wnd: HWND): RawByteString;
 var
 	pc: PAnsiChar;
 begin
-	Result := '';
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompGetSource');
 	EnterCriticalSection;
 	try
 		pc := self._CompGetSource(wnd);
-		Result := PAnsiChar(pc);
-        self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 procedure TBeckyAPI.CompGetSpecifiedHeader(wnd: HWND; sHeader: RawByteString;
-  var sData: RawByteString);
+	var sData: RawByteString);
 begin
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompGetSpecifiedHeader '+sHeader);
 	EnterCriticalSection;
 	try
 		SetLength(sData, 4096);
@@ -1319,17 +1334,17 @@ function TBeckyAPI.CompGetText(wnd: HWND; var sMimeType: RawByteString): RawByte
 var
 	pc: PAnsiChar;
 begin
-	Result := '';
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompGetText');
 	EnterCriticalSection;
 	try
 		SetLength(sMimeType, 256);
 		pc := self._CompGetText(wnd, PAnsiChar(sMimeType), 256);
-		Result := PAnsiChar(pc);
+		Result := PAnsiChar2RawByteString(pc);
 		sMimeType := PAnsiChar(sMimeType);
-		self._FreeMem(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1337,6 +1352,7 @@ function TBeckyAPI.ComposeMail(sURL: RawByteString): HWND;
 begin
 	Result := 0;
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'ComposeMail '+sURL);
 	EnterCriticalSection;
 	try
 		Result := self._ComposeMail(PAnsiChar(AnsiString(sURL)));
@@ -1348,6 +1364,7 @@ end;
 procedure TBeckyAPI.CompSetSource(wnd: HWND; sSource: RawByteString);
 begin
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompSetSource');
 	EnterCriticalSection;
 	try
 		self._CompSetSource(wnd, PAnsiChar(AnsiString(sSource)));
@@ -1357,9 +1374,10 @@ begin
 end;
 
 procedure TBeckyAPI.CompSetSpecifiedHeader(wnd: HWND; sHeader,
-  sData: RawByteString);
+	sData: RawByteString);
 begin
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompSetSpecifiedHeader '+sData);
 	EnterCriticalSection;
 	try
 		self._CompSetSpecifiedHeader(wnd, PAnsiChar(AnsiString(sHeader)), PAnsiChar(AnsiString(sData)));
@@ -1369,9 +1387,10 @@ begin
 end;
 
 procedure TBeckyAPI.CompSetText(wnd: HWND; nMode: Integer;
-  sText: RawByteString);
+	sText: RawByteString);
 begin
 	if not isInitialized then Exit;
+	logger.verbose('TBeckyAPI', 'CompSetText');
 	EnterCriticalSection;
 	try
 		self._CompSetText(wnd, nMode, PAnsiChar(AnsiString(sText)));
@@ -1394,33 +1413,32 @@ begin
 end;
 
 function TBeckyAPI.EUC_JP(sSrc: RawByteString;
-  bEncode: LongBool): RawByteString;
+	bEncode: LongBool): RawByteString;
 var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'EUC_JP '+IntToStr(Integer(bEncode))+','+Copy(sSrc, 1, 16));
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._EUC_JP(PAnsiChar(AnsiString(sSrc)), bEncode);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 procedure TBeckyAPI.FreeMem(lpVoid: Pointer);
 begin
-	logger.verbose('TBeckyAPI', 'FreeMem');
+	//logger.verbose('TBeckyAPI', 'FreeMem');
 	if not isInitialized then Exit;
-	EnterCriticalSection;
-	try
+	//EnterCriticalSection;
+	//try
 		self._FreeMem(lpVoid);
-	finally
-		LeaveCriticalSection;
-	end;
+	//finally
+	//	LeaveCriticalSection;
+	//end;
 end;
 
 function TBeckyAPI.GetCharSet(sMailId: RawByteString; var sCharSet: RawByteString): Integer;
@@ -1443,34 +1461,34 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetCurrentFolder');
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetCurrentFolder;
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.GetCurrentMail: RawByteString;
 var
 	pc: PAnsiChar;
+	str: String;
 begin
 	logger.verbose('TBeckyAPI', 'GetCurrentMail');
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetCurrentMail;
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
+		str := UTF8String(Result);
+		Result := AnsiString(str.Replace('\', '/'));
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
-	Result := AnsiReplaceText(Result, '\', '/');
 end;
 
 function TBeckyAPI.GetCurrentMailBox: RawByteString;
@@ -1478,15 +1496,15 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetCurrentMailBox');
-	Result := '';
+	if not Assigned(self._GetCurrentMailBox) then logger.verbose('TBeckyAPI', 'GetCurrentMailBox Error');
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetCurrentMailBox;
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1495,35 +1513,32 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetDataFolder');
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetDataFolder;
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.GetFolderDisplayName(
-  sFolderId: RawByteString): RawByteString;
+	sFolderId: RawByteString): RawByteString;
 var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetFolderDisplayName '+sFolderId);
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetFolderDisplayName(PAnsiChar(AnsiString(sFolderId)));
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);	// \が/に正規化されている
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
-	Result := AnsiReplaceText(Result, '\', '/');
 end;
 
 function TBeckyAPI.GetHeader(sMailId: RawByteString): RawByteString;
@@ -1531,21 +1546,20 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetHeader '+sMailId);
-	Result := '';
 	if not isInitialized then Exit;
 	sMailId := AnsiReplaceText(AnsiString(sMailId), '/', '\');
 	EnterCriticalSection;
 	try
 		pc := self._GetHeader(PAnsiChar(sMailId));
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
 function TBeckyAPI.GetNextMail(nStart: Integer; var sMailId: RawByteString;
-  bSel: LongBool): Integer;
+	bSel: LongBool): Integer;
 begin
 	logger.verbose('TBeckyAPI', 'GetNextMail');
 	Result := 0;
@@ -1565,16 +1579,15 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetSource '+sMailId);
-	Result := '';
 	if not isInitialized then Exit;
 	sMailId := AnsiReplaceText(AnsiString(sMailId), '/', '\');
 	EnterCriticalSection;
 	try
 		pc := self._GetSource(PAnsiChar(sMailId));
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1610,15 +1623,14 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetTempFileName '+sType);
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetTempFileName(PAnsiChar(AnsiString(sType)));
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1627,15 +1639,14 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetTempFolder');
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetTempFolder;
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1644,17 +1655,16 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetText');
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		SetLength(sMimeType, 256);
 		pc := self._GetText(PAnsiChar(AnsiString(sMimeType)), 256);
-		Result := PAnsiChar(pc);
+		Result := PAnsiChar2RawByteString(pc);
 		sMimeType := PAnsiChar(sMimeType);
-		self._FreeMem(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1663,15 +1673,14 @@ var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'GetVersion');
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._GetVersion;
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 
@@ -1689,20 +1698,19 @@ begin
 end;
 
 function TBeckyAPI.HZ_GB2312(sSrc: RawByteString;
-  bEncode: LongBool): RawByteString;
+	bEncode: LongBool): RawByteString;
 var
 	pc: PAnsiChar;
 begin
 	logger.verbose('TBeckyAPI', 'HZ_GB2312 '+IntToStr(Integer(bEncode))+','+Copy(sSrc, 1, 16));
-	Result := '';
 	if not isInitialized then Exit;
 	EnterCriticalSection;
 	try
 		pc := self._HZ_GB2312(PAnsiChar(AnsiString(sSrc)), bEncode);
-		Result := PAnsiChar(pc);
-		self._FreeMem(pc);
+		Result := PAnsiChar2RawByteString(pc);
 	finally
 		LeaveCriticalSection;
+		PAnsiCharFreeMem(pc);
 	end;
 end;
 

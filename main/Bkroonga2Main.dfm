@@ -3,20 +3,18 @@ object Bkroonga2MainForm: TBkroonga2MainForm
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Bkroonga2MainForm'
-  ClientHeight = 351
-  ClientWidth = 794
+  ClientHeight = 350
+  ClientWidth = 790
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 8
@@ -27,9 +25,9 @@ object Bkroonga2MainForm: TBkroonga2MainForm
     FocusControl = EditGrnExe
   end
   object Label4: TLabel
-    Left = 677
+    Left = 678
     Top = 323
-    Width = 109
+    Width = 108
     Height = 13
     Alignment = taRightJustify
     Caption = #8251#35443#32048#12399'Readme'#21442#29031
@@ -87,35 +85,35 @@ object Bkroonga2MainForm: TBkroonga2MainForm
     object LabelVer: TLabel
       Left = 8
       Top = 8
-      Width = 98
+      Width = 99
       Height = 13
       Caption = 'Bkroonga2 Ver. X.XX'
     end
     object LabelGrnVer: TLabel
       Left = 8
       Top = 27
-      Width = 88
+      Width = 89
       Height = 13
       Caption = 'Groonga Ver. X.XX'
     end
     object LabelDirCnt: TLabel
       Left = 18
       Top = 46
-      Width = 54
+      Width = 53
       Height = 13
       Caption = 'Dir Count='
     end
     object LabelMailCnt: TLabel
       Left = 102
       Top = 46
-      Width = 60
+      Width = 58
       Height = 13
       Caption = 'Mail Count='
     end
     object LabelWeb1: TLabel
       Left = 128
       Top = 8
-      Width = 40
+      Width = 39
       Height = 13
       Cursor = crHandPoint
       Hint = 'https://github.com/shinonon301/bkroonga2/'
@@ -133,7 +131,7 @@ object Bkroonga2MainForm: TBkroonga2MainForm
     object LabelWeb2: TLabel
       Left = 128
       Top = 27
-      Width = 40
+      Width = 39
       Height = 13
       Cursor = crHandPoint
       Hint = 'https://groonga.org/ja/'

@@ -149,7 +149,7 @@ type
 			MousePos: TPoint; var Handled: Boolean);
 		procedure DGMonthMouseWheelUp(Sender: TObject; Shift: TShiftState;
 			MousePos: TPoint; var Handled: Boolean);
-    procedure TVFolderChange(Sender: TObject; Node: TTreeNode);
+		procedure TVFolderChange(Sender: TObject; Node: TTreeNode);
 	private
 		{ Private 宣言 }
 		FirstShow: Boolean;
@@ -235,7 +235,7 @@ type
 	end;
 
 const
-    AppIni = 'SearchForm';
+		AppIni = 'SearchForm';
 
 var
 	Bkroonga2SearchForm: TBkroonga2SearchForm;
@@ -314,7 +314,7 @@ begin
 	if Assigned(grnreqthread) then begin
 		grnreqthread.Terminate;
 		grnreqthread.WaitFor;
-        Application.ProcessMessages;
+		Application.ProcessMessages;
 		FreeAndNil(grnreqthread);
 	end;
 	while resque.Count > 0 do resque.Dequeue;
@@ -328,7 +328,7 @@ begin
 	if FirstShow then begin
 		FirstShow := False;
 		IniLoad;
-        ClearAllQuery;
+				ClearAllQuery;
 		SetSnippetHTMLText;
 		SetLVSort(LVSortType);
 	end;
@@ -361,7 +361,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.FormCloseQuery(Sender: TObject;
-  var CanClose: Boolean);
+	var CanClose: Boolean);
 begin
 	logger.debug(self.ClassName, 'CloseQuery');
 	IniSave;
@@ -440,7 +440,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.CBQueryKeyPress(Sender: TObject;
-  var Key: Char);
+	var Key: Char);
 begin
 	if Key = #13 then begin
 		if Sender is TListView then begin
@@ -456,13 +456,13 @@ begin
 			ActiveControl := FindNextControl(ActiveControl, GetKeyState(VK_SHIFT) >= 0, True, False);
 			if (not (ActiveControl is TPanel)) and (not (ActiveControl is TWebBrowser)) and (not (ActiveControl is TDrawGrid)) then Break;
 		end;
-    end;
+	end;
 end;
 
 procedure TBkroonga2SearchForm.DGMonthDrawCell(Sender: TObject; ACol,
-  ARow: Integer; Rect: TRect; State: TGridDrawState);
+	ARow: Integer; Rect: TRect; State: TGridDrawState);
 var
-    qi: TGrnQueryResult;
+	qi: TGrnQueryResult;
 	r: TRect;
 	h, w, v: Integer;
 	s0, s1, s2: String;
@@ -542,7 +542,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.DGMonthMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+	Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
 	if (Button = mbRight) and (DGMonth.Selection.Left >= 0) then begin
 		DGMonthUnselect;
@@ -551,29 +551,29 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.DGMonthMouseWheelDown(Sender: TObject;
-  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+	Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
 begin
 	PostMessage(DGMonth.Handle, WM_HSCROLL, $1, 0);
 	Handled := True;
 end;
 
 procedure TBkroonga2SearchForm.DGMonthMouseWheelUp(Sender: TObject;
-  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+	Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
 begin
 	PostMessage(DGMonth.Handle, WM_HSCROLL, $0, 0);
 	Handled := True;
 end;
 
 procedure TBkroonga2SearchForm.TVFolderChange(Sender: TObject;
-  Node: TTreeNode);
+	Node: TTreeNode);
 begin
 	logger.debug(self.ClassName, 'TVFolderChange');
 	StartQuery;
 end;
 
 procedure TBkroonga2SearchForm.TVFolderCustomDrawItem(
-  Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState;
-  var DefaultDraw: Boolean);
+	Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState;
+	var DefaultDraw: Boolean);
 var
 	qi: TGrnQueryResult;
 	cnv: TCanvas;
@@ -621,7 +621,7 @@ begin
 		cnv.Brush.Style := bsClear;
 		r := Node.DisplayRect(True);
 		r.Left := r.Left - 16 - (4*Node.Level);
-        cnv.Font.Color := clWindowText;
+		cnv.Font.Color := clWindowText;
 		cnv.TextRect(r, r.Left, r.Top, Node.Text);
 		r0 := r;
 		r0.Left := r0.Left - ILMail.Width;
@@ -648,16 +648,16 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.TVFolderMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+	Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
 	if (Button = mbRight) and (TVFolder.Items.Count > 0) and (TVFolder.Selected <> nil) then begin
 		TVFolder.Selected := nil;
-        StartQuery;
+		StartQuery;
 	end;
 end;
 
 procedure TBkroonga2SearchForm.LVMailChange(Sender: TObject;
-  Item: TListItem; Change: TItemChange);
+	Item: TListItem; Change: TItemChange);
 begin
 	if Change = ctState then LVMailClick(self);
 end;
@@ -708,7 +708,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.LVMailColumnClick(Sender: TObject;
-  Column: TListColumn);
+	Column: TListColumn);
 var
 	i, idx, idx0: Integer;
 begin
@@ -953,7 +953,7 @@ begin
 	Result := Copy(Result, 1, Length(Result)-2);
 	if Result = '' then begin
 		Result := 'msgid.body';
-        CBBody.Checked := True;
+		CBBody.Checked := True;
 	end;
 end;
 
@@ -1000,13 +1000,14 @@ begin
 		tn := TVFolder.Selected;
 		if Assigned(tn) then begin
 			i := Integer(tn.Data);
-			if (i >= 0) and (i < Length(TVFolName)) then
+			if (i >= 0) and (i < Length(TVFolName)) then begin
 				//GroupBox1.Caption := TVFolName[i];
 				if not OnlyFolder then begin
 					fil := fil + ' && dir@^"'+TVFolName[i]+'"';
 				end else begin
 					fil := fil + ' && dir=="'+TVFolName[i]+'"';
 				end;
+			end;
 		end;
 		if (PanelFrom.Tag >= 0) and (PanelFrom.Tag < Length(FromList)) then begin
 			tmp := FromList[PanelFrom.Tag].key;
@@ -1073,14 +1074,13 @@ procedure TBkroonga2SearchForm.StartQuery;
 begin
 	logger.debug(self.ClassName, 'StartQuery');
 	if Trim(CBQuery.Text) = '' then begin
-        ClearAllQuery;
+		ClearAllQuery;
 		Exit;
 	end;
 	qstage := 0;
 	qhits := 0;
 	LabelHit.Caption := 'HIT: ...';
-	TimerPrevQstr := Trim(CBQuery.Text);
-	AddHistory(TimerPrevQstr);
+	AddHistory(Trim(CBQuery.Text));
 	TimerCnt := 0;
 	QuerySend(qstage, MakeQueryParam(qstage));
 	IniSave;
@@ -1102,10 +1102,9 @@ end;
 procedure TBkroonga2SearchForm.AddHistory(s: String);
 begin
 	try
-		if s = '' then Exit;    // 空文字は履歴に追記しない
-		if CBQuery.Items.Count > 0 then begin
+		if s = '' then Exit;		// 空文字は履歴に追記しない
+		if CBQuery.Items.Count > 0 then
 			if CBQuery.Items[0] = s then Exit;
-		end;
 		CBQuery.Items.Insert(0, s);
 		while CBQuery.Items.Count > 1000 do
 			CBQuery.Items.Delete(CBQuery.Items.Count-1);
@@ -1120,7 +1119,7 @@ var
 begin
 	try
 		if Length(param) = 0 then begin
-            ClearAllQuery;
+			ClearAllQuery;
 			Exit;
 		end;
 		logger.debug(self.ClassName, Format('QuerySend stage=%d param=%s', [qstage, String.join(',', param)]));
@@ -1135,7 +1134,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.ReceiveSnippet(idx: Integer;
-  json: TJSONObject);
+	json: TJSONObject);
 var
 	i: Integer;
 	snistr: String;
@@ -1166,7 +1165,7 @@ begin
 				QItem[GetLVQItemIndex(idx)].snippet := snistr;
 			end else begin
 				logger.info(self.ClassName, Format('ReceiveSnippet %d %X but drop', [idx, GetCurrentThreadId]));
-                Exit;
+								Exit;
 			end;
 		end;
 		s := snippethtml + UTF8String(snistr) + UTF8String('</body></html>');
@@ -1203,7 +1202,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.PanelFromMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+	Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
 	try
 		if (Button = mbRight) and (PanelFrom.Tag >= 0) then begin
@@ -1236,10 +1235,14 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.TimerTimer(Sender: TObject);
+var
+	tmp: String;
 begin
 	try
-		if TimerPrevQstr <> Trim(CBQuery.Text) then begin
-			TimerPrevQstr := Trim(CBQuery.Text);
+		tmp := Trim(CBQuery.Text);
+		if CBMailBox.Checked then tmp := tmp + bka.GetCurrentMailBox;
+		if TimerPrevQstr <> tmp then begin
+			TimerPrevQstr := tmp;
 			TimerCnt := 10;
 		end;
 		if TimerCnt > 0 then begin
@@ -1271,7 +1274,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.TVFolderChangeCount(tn: TTreeNode; cnt,
-  cntchild: Integer);
+	cntchild: Integer);
 var
 	m: TMatch;
 begin
@@ -1317,7 +1320,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.GetNameAndAddr(var name, adrs: String;
-  src: String);
+	src: String);
 var
 	lpsz: String;
 	lpszidx, lpszAddridx, lpszTmpidx: Integer;
@@ -1393,14 +1396,14 @@ begin
 end;
 
 function TBkroonga2SearchForm.mymbschr(str: String; startidx: Integer;
-  chr: String): Integer;
+	chr: String): Integer;
 begin
 	Result := Pos(chr, Copy(str, startidx, MaxInt));
 	if Result > 0 then Result := Result + startidx - 1;
 end;
 
 function TBkroonga2SearchForm.mymbstok(str: String; startidx: Integer;
-  tok: String): Integer;
+	tok: String): Integer;
 begin
 	Result := Pos(tok, Copy(str, startidx, MaxInt));
 	if Result > 0 then Result := Result + startidx;
@@ -1496,7 +1499,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.ReceiveFirstQuery(stage: Integer;
-  json: TJSONObject);
+	json: TJSONObject);
 var
 	i, cnt, val, lev: Integer;
 	dt: TDateTime;
@@ -1528,7 +1531,7 @@ begin
 						prevddt := EncodeDate(StrToInt(FormatDateTime('yyyy', prevddt)), StrToInt(FormatDateTime('mm', prevddt)), 1);
 						tmpddres.key := FloatToStr(bka.DateTimeTotime_t(prevddt));
 						tmpddres.value := 0;
-                        MonthList := MonthList + [tmpddres];
+						MonthList := MonthList + [tmpddres];
 					end;
 				end;
 				MonthList := MonthList + [ddres];
@@ -1649,7 +1652,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.ReceiveQuery(stage: Integer;
-  json: TJSONObject);
+	json: TJSONObject);
 var
 	i, j: Integer;
 	qres: TGrnQueryResult;
@@ -1710,7 +1713,7 @@ begin
 		LVMail.Clear;
 		SetLength(LVItem, 0);
 		SetLength(QItem, 0);
-        prevsnippetidx := -1;
+				prevsnippetidx := -1;
 	except on E: Exception do
 		logger.error(self.ClassName, Format('LVMailClear %s %s', [E.Message, e.StackTrace]));
 	end;
@@ -1720,7 +1723,7 @@ procedure TBkroonga2SearchForm.AddQItem(qi: TGrnQueryResult);
 var
 	i, j, lv: Integer;
 	addidx: Integer;
-    tmplvitem: TArray<Integer>;
+		tmplvitem: TArray<Integer>;
 begin
 	try
 		addidx := -1;
@@ -1731,7 +1734,7 @@ begin
 					Inc(i);
 				end else if QItem[LVItem[i]].msgid_id = qi.inreplyto then begin
 					// 親が見つかったときはその親にぶら下げる
-					//if QItem[LVItem[i]].haschild then begin  // 親に子が既にいたとしても兄弟なんだから何もしない
+					//if QItem[LVItem[i]].haschild then begin	 // 親に子が既にいたとしても兄弟なんだから何もしない
 					//	j := i + 1;
 					//	while j < Length(LVItem) do begin
 					//		if QItem[LVItem[j]].level <> (QItem[LVItem[j]].level + 1) then Break;
@@ -1815,7 +1818,7 @@ begin
 		LVMail.ItemIndex := -1;
 		li := LVMail.ItemFocused;
 		LVMail.ItemFocused := nil;
-        LVMail.Selected := nil;
+		LVMail.Selected := nil;
 		if LVSortType = SortThread then begin
 			if renew then begin
 				tmpq := Copy(QItem, 0, Length(QItem)+1);
@@ -1843,7 +1846,7 @@ begin
 				SetLength(LVItem, 0);
 				for i := 0 to Length(QItem)-1 do
 					LVItem := LVItem + [i];
-                prevsnippetidx := -1;
+				prevsnippetidx := -1;
 			end;
 			if LVSortType = SortSubject then begin
 				comp := TDelegatedComparer<Integer>.Create(
@@ -1943,12 +1946,12 @@ begin
 	except on E: Exception do begin
 			logger.error(self.ClassName, Format('GetMonthNext %s %s %f', [E.Message, e.StackTrace, dt]));
 			Result := 0.0;
-	    end;
+			end;
 	end;
 end;
 
 procedure TBkroonga2SearchForm.LVMailData(Sender: TObject;
-  Item: TListItem);
+	Item: TListItem);
 var
 	qi: TGrnQueryResult;
 	dtstr, tmp: String;
@@ -2018,7 +2021,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.LVMailSelectItem(Sender: TObject;
-  Item: TListItem; Selected: Boolean);
+	Item: TListItem; Selected: Boolean);
 var
 	qi: TGrnQueryResult;
 	i, idx: Integer;
@@ -2037,7 +2040,7 @@ begin
 				idx := Integer(TVFolder.Items[i].Data);
 				if (idx >= 0) and (i < Length(TVFolName)) then
 					if LowerCase(TVFolName[idx]) = s then begin
-						//TVFolder.Items[i].MakeVisible;    // MakeVisibleだと横スクロールも伴ってうざい
+						//TVFolder.Items[i].MakeVisible;		// MakeVisibleだと横スクロールも伴ってうざい
 						tn := TVFolder.Items[i];
 						while tn.Parent <> nil do begin
 							tn := tn.Parent;
@@ -2084,7 +2087,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.GetQueryRecordCount(
-  json: TJSONObject): Integer;
+	json: TJSONObject): Integer;
 begin
 	try
 		Result := json.GetValue<TJSONObject>('body').
@@ -2095,7 +2098,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.GetQueryColumnLength(
-  json: TJSONObject): Integer;
+	json: TJSONObject): Integer;
 begin
 	try
 		Result := json.GetValue<TJSONObject>('body').
@@ -2106,7 +2109,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.GetDrilldownDtCount(
-  json: TJSONObject): Integer;
+	json: TJSONObject): Integer;
 begin
 	try
 		Result := json.GetValue<TJSONObject>('body').
@@ -2119,7 +2122,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.GetDrilldownDirCount(
-  json: TJSONObject): Integer;
+	json: TJSONObject): Integer;
 begin
 	try
 		Result := json.GetValue<TJSONObject>('body').
@@ -2132,7 +2135,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.GetDrilldownFromCount(
-  json: TJSONObject): Integer;
+	json: TJSONObject): Integer;
 begin
 	try
 		Result := json.GetValue<TJSONObject>('body').
@@ -2145,7 +2148,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.ParseQueryColumn(json: TJSONObject;
-  colidx: Integer): TJSONObject;
+	colidx: Integer): TJSONObject;
 begin
 	try
 		Result := json.GetValue<TJSONObject>('body').
@@ -2156,7 +2159,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.ParseQueryRecord(json: TJSONObject; idx,
-  colidx: Integer): TJSONValue;
+	colidx: Integer): TJSONValue;
 begin
 	try
 		Result := (json.GetValue<TJSONObject>('body').
@@ -2168,7 +2171,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.ParseDrilldownDtRecord(json: TJSONObject;
-  idx: Integer): TDrilldownRecord;
+	idx: Integer): TDrilldownRecord;
 var
 	jary: TJSONArray;
 begin
@@ -2188,7 +2191,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.ParseDrilldownDirRecord(json: TJSONObject;
-  idx: Integer): TDrilldownRecord;
+	idx: Integer): TDrilldownRecord;
 var
 	jary: TJSONArray;
 begin
@@ -2208,7 +2211,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.ParseDrilldownFromRecord(json: TJSONObject;
-  idx: Integer): TDrilldownRecord;
+	idx: Integer): TDrilldownRecord;
 var
 	jary: TJSONArray;
 begin
@@ -2228,7 +2231,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.ParseNumberJSONArray(
-  j: TJSONArray): TArray<DWORD>;
+	j: TJSONArray): TArray<DWORD>;
 var
 	i: Integer;
 begin
@@ -2242,7 +2245,7 @@ begin
 end;
 
 function TBkroonga2SearchForm.ParseStringJSONArray(
-  j: TJSONArray): TArray<String>;
+	j: TJSONArray): TArray<String>;
 var
 	i: Integer;
 begin
@@ -2329,7 +2332,7 @@ begin
 end;
 
 procedure TBkroonga2SearchForm.Splitter1CanResize(Sender: TObject;
-  var NewSize: Integer; var Accept: Boolean);
+	var NewSize: Integer; var Accept: Boolean);
 begin
 	Accept := ShowTree;
 end;

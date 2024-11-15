@@ -96,7 +96,7 @@ begin
 	if Assigned(Bkroonga2MainForm) then
 		Bkroonga2MainForm.StartGroonga
 	else
-        MessageBox(0, 'なぜかBkroonga2が起動していません', 'エラー', MB_ICONEXCLAMATION or MB_OK);
+		MessageBox(0, 'なぜかBkroonga2が起動していません', 'エラー', MB_ICONEXCLAMATION or MB_OK);
 	// Always return 0.
 	Result := 0;
 end;
@@ -213,7 +213,6 @@ begin
 	except
 		on E: Exception do MessageBox(0, PChar('BKC_OnEveryMinute Exception'#10+E.Message), AppName, MB_OK);
 	end;
-
 	// Always return 0.
 	Result := 0;
 end;
@@ -331,7 +330,7 @@ begin
 		if Assigned(Bkroonga2MainForm) then begin
 			IndexingPending;
 			Bkroonga2MainForm.Position := poScreenCenter;
-            Bkroonga2MainForm.UpdateParams;
+			Bkroonga2MainForm.UpdateParams;
 			Bkroonga2MainForm.Show;
 		end;
 	except
@@ -344,7 +343,7 @@ end;
 // Called when plug-in information is being retrieved.
 function BKC_OnPlugInInfo(lpPlugInInfo: PBkPlugInInfo): Integer; stdcall;
 begin
-		{  You MUST specify at least szPlugInName and szVendor.
+		{	 You MUST specify at least szPlugInName and szVendor.
 			 otherwise Becky! will silently ignore your plug-in.
 		with lpPlugInInfo^ do begin
 			szPlugInName := 'Becky! Hoge Hoge plug-in';
@@ -374,14 +373,14 @@ var
 	i: Integer;
 begin
 	{
-		lpTgt:  A folder ID of the target folder.
+		lpTgt:	A folder ID of the target folder.
 						You can assume it is a root mailbox, if the string
 						contains only one '\' character.
-		lpSrc:  Either a folder ID or mail IDs. Multiple mail IDs are
+		lpSrc:	Either a folder ID or mail IDs. Multiple mail IDs are
 						separated by '\n' (0x0a).
 						You can assume it is a folder ID, if the string
 						doesn't contain '?' character.
-		nCount  Number of items to be dropped.
+		nCount	Number of items to be dropped.
 						It can be more than one, if you drop mail items.
 		dropEffect: Type of drag and drop operation
 						1: Copy
@@ -447,7 +446,7 @@ var
 	pVerInfo, pBuf: Pointer;
 	LangId, CharSetId, LogFn, tmpStr: AnsiString;
 	llev, lsize, lhist: Integer;
-    f: File;
+		f: File;
 begin
 	bka := TBeckyAPI.Create;
 	ExitSave := ExitProc;
@@ -474,7 +473,7 @@ begin
 	LogFn := ChangeFileExt(IniFilename, '.log');
 	llev := Ord(LOG_DEBUG);
 	lsize := 1000000;
-    lhist := 7;
+		lhist := 7;
 	if FileExists(IniFileName) then begin
 		SetLength(tmpStr, MAX_PATH+4);
 		GetPrivateProfileStringA(PAnsiChar(AppName), PAnsiChar('LogFile'), '', PAnsiChar(tmpStr), MAX_PATH, PAnsiChar(AnsiString(IniFilename)));
